@@ -6,11 +6,13 @@
 #include "Light/Vector3f.h"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include <SFML/Main.hpp>
+#include <Vector3.hpp>
 
 int main() {
     Vector3f vec(1.0f, 2.0f, 3.0f);
     std::cout << vec.to_string() << std::endl;
+    gmath::Vector3 a(1.0f, 2.0f, 3.0f);
+    std::cout << a << std::endl;
 
     sf::RenderWindow window(sf::VideoMode({800, 600}), "SFML Example");
 
