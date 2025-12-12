@@ -6,28 +6,12 @@
 #include <ostream>
 #include <stdexcept>
 
-/**
- * @namespace gmath
- * @brief Пространство имён для математических операций
- * 
- * Содержит шаблонные классы: 
- * 
- * Vector2
- * 
- * Vector3
- * 
- * Vector4
- * 
- * Все классы поддерживают операции с типами float и double.
- */
+#include "MConcepts.hpp"
+
+
 namespace gmath {
 
-    /**
-     * @concept isFloatDouble
-     * @brief Концепт для проверки типа на соответствие float или double
-     * @tparam T Проверяемый тип
-     */
-    template<typename T> concept is_float_double = std::is_floating_point_v<T>;
+    
 
     /**
      * @class Vector2
@@ -117,21 +101,23 @@ namespace gmath {
                 return x * other.x + y * other.y;
             }
                         
-            [[nodiscard]] T length_squared() const {
+            [[nodiscard]] T length_squared() const noexcept {
                 return x * x + y * y;
             }
             
-            [[nodiscard]] T length() const {
+            [[nodiscard]] T length() const noexcept {
                 return std::sqrt(length_squared());
             }
             
             [[nodiscard]] Vector2 normalized() const {
                 T len = length();                
+                if (len == 0) return *this;
                 return *this / len;
             }
             
             void normalize() {
-                T len = length();                
+                T len = length();     
+                if (len == 0) return;           
                 *this /= len;
             }
     };

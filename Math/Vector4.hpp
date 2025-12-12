@@ -5,6 +5,8 @@
 #include <ostream>
 #include <stdexcept>
 
+#include "MConcepts.hpp"
+
 namespace gmath {
 
     //template<typename T> concept isFloatDouble = std::is_floating_point_v<T>;
@@ -100,21 +102,23 @@ namespace gmath {
                 return x * other.x + y * other.y + z * other.z + w * other.w;
             }            
                         
-            [[nodiscard]] T length_squared() const {
+            [[nodiscard]] T length_squared() const noexcept {
                 return x * x + y * y + z * z + w * w;
             }
             
-            [[nodiscard]] T length() const {
+            [[nodiscard]] T length() const noexcept {
                 return std::sqrt(length_squared());
             }
             
             [[nodiscard]] Vector4 normalized() const {
                 T len = length();                
+                if (len == 0) return *this;
                 return *this / len;
             }
             
             void normalize() {
                 T len = length();                
+                if (len == 0) return;           
                 *this /= len;
             }            
     };
