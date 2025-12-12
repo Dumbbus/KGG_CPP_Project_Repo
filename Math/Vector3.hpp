@@ -3,35 +3,19 @@
 #include <concepts>
 #include <cmath>
 #include <ostream>
+#include <stdexcept>
 
 namespace gmath {
 
-    template<typename T> concept Chislo = std::is_arithmetic_v<T>;
+    //template<typename T> concept isFloatDouble = std::is_floating_point_v<T>;
 
-    template<Chislo T> class Vector3 {
+    template<isFloatDouble T> class Vector3 {
         public:
             T x, y, z;
 
             Vector3() : x(0), y(0), z(0) {}
             Vector3(T x, T y, T z) : x(x), y(y), z(z) {}
-            Vector3(const Vector3& other) = default;
-
-
-            static Vector3<T> Null() { 
-                return Vector3<T>(0, 0, 0);
-            }
-            static Vector3<T> One() {
-                return Vector3<T>(1, 1, 1);
-            }
-            static Vector3<T> Up() { 
-                return Vector3<T>(0, 1, 0);
-            }            
-            static Vector3<T> Right() {
-                return Vector3<T>(1, 0, 0);
-            }            
-            static Vector3<T> Forward() {
-                return Vector3<T>(0, 0, 1);
-            }            
+            Vector3(const Vector3& other) = default;          
         
             Vector3& operator=(const Vector3& other) = default;
             
@@ -102,11 +86,11 @@ namespace gmath {
                 return os;
             }
 
-            T dot(const Vector3& other) const {
+            [[nodiscard]] T dot(const Vector3& other) const {
                 return x * other.x + y * other.y + z * other.z;
             }
             
-            Vector3 cross(const Vector3& other) const {
+            [[nodiscard]] Vector3 cross(const Vector3& other) const {
                 return Vector3(
                     y * other.z - z * other.y,
                     z * other.x - x * other.z,
@@ -114,15 +98,15 @@ namespace gmath {
                 );
             }
             
-            T lengthSquared() const {
+            [[nodiscard]] T lengthSquared() const {
                 return x * x + y * y + z * z;
             }
             
-            T length() const {
+            [[nodiscard]] T length() const {
                 return std::sqrt(lengthSquared());
             }
             
-            Vector3 normalized() const {
+            [[nodiscard]] Vector3 normalized() const {
                 T len = length();
                 if (len == 0) return *this;
                 return *this / len;
@@ -137,6 +121,5 @@ namespace gmath {
     };
 
     using Vector3f = Vector3<float>;
-    using Vector3d = Vector3<double>;
-    using Vector3i = Vector3<int>;
+    using Vector3d = Vector3<double>;    
 }

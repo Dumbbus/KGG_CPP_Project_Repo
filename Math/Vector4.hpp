@@ -3,36 +3,18 @@
 #include <concepts>
 #include <cmath>
 #include <ostream>
+#include <stdexcept>
 
 namespace gmath {
 
-    template<typename T> concept Chislo = std::is_arithmetic_v<T>;
+    //template<typename T> concept isFloatDouble = std::is_floating_point_v<T>;
 
-    template<Chislo T> class Vector4 {
+    template<isFloatDouble T> class Vector4 {
         public:
             T x, y, z, w;
             
             Vector4() : x(0), y(0), z(0), w(0) {}
-            Vector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}            
-
-            static Vector4<T> Null() { 
-                return Vector4<T>(0, 0, 0, 0);
-            }
-            static Vector4<T> One() {
-                return Vector4<T>(1, 1, 1, 1);
-            }            
-            static Vector4<T> Up() { 
-                return Vector4<T>(0, 1, 0, 0);
-            }            
-            static Vector4<T> Right() {
-                return Vector4<T>(1, 0, 0, 0);
-            }            
-            static Vector4<T> Forward() {
-                return Vector4<T>(0, 0, 1, 0);
-            }
-            /*static Vector4<T> ?() {
-                return Vector4<T>(0, 0, 0, 1);
-            }*/
+            Vector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}                                 
             
             Vector4(const Vector4& other) = default;
             Vector4& operator=(const Vector4& other) = default;
@@ -71,7 +53,7 @@ namespace gmath {
                 w -= other.w;
                 return *this;
             }
-            
+                                    
             Vector4& operator*=(T scalar) {
                 x *= scalar;
                 y *= scalar;
@@ -108,19 +90,19 @@ namespace gmath {
                 return os;
             }
             
-            T dot(const Vector4& other) const {
+            [[nodiscard]] T dot(const Vector4& other) const {
                 return x * other.x + y * other.y + z * other.z + w * other.w;
             }            
                         
-            T lengthSquared() const {
+            [[nodiscard]] T lengthSquared() const {
                 return x * x + y * y + z * z + w * w;
             }
             
-            T length() const {
+            [[nodiscard]] T length() const {
                 return std::sqrt(lengthSquared());
             }
             
-            Vector4 normalized() const {
+            [[nodiscard]] Vector4 normalized() const {
                 T len = length();                
                 return *this / len;
             }
@@ -132,6 +114,5 @@ namespace gmath {
     };
 
     using Vector4f = Vector4<float>;
-    using Vector4d = Vector4<double>;
-    using Vector4i = Vector4<int>;
+    using Vector4d = Vector4<double>;    
 }
