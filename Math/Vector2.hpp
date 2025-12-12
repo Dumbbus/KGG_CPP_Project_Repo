@@ -6,10 +6,35 @@
 #include <ostream>
 #include <stdexcept>
 
+/**
+ * @namespace gmath
+ * @brief Пространство имён для математических операций
+ * 
+ * Содержит шаблонные классы: 
+ * 
+ * Vector2
+ * 
+ * Vector3
+ * 
+ * Vector4
+ * 
+ * Все классы поддерживают операции с типами float и double.
+ */
 namespace gmath {
 
+    /**
+     * @concept isFloatDouble
+     * @brief Концепт для проверки типа на соответствие float или double
+     * @tparam T Проверяемый тип
+     */
     template<typename T> concept isFloatDouble = std::is_floating_point_v<T>;
 
+    /**
+     * @class Vector2
+     * @brief Шаблонный класс для работы с 2D векторами
+     * @tparam T Тип координат вектора (float или double)
+     *      
+     */
     template<isFloatDouble T> class Vector2 {
         public:
             T x, y;
@@ -82,7 +107,12 @@ namespace gmath {
                 os << "(" << vec.x << ", " << vec.y << ")";
                 return os;
             }
-                        
+                       
+            /**
+             * @brief Скалярное произведение векторов
+             * @param other Второй вектор
+             * @return Скалярное произведение - число
+             */
             [[nodiscard]] T dot(const Vector2& other) const {
                 return x * other.x + y * other.y;
             }

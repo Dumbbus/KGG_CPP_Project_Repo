@@ -9,6 +9,12 @@ namespace gmath {
 
     //template<typename T> concept isFloatDouble = std::is_floating_point_v<T>;
 
+    /**
+     * @class Vector3
+     * @brief Шаблонный класс для работы с 3D векторами
+     * @tparam T Тип координат вектора (float или double)
+     *      
+     */
     template<isFloatDouble T> class Vector3 {
         public:
             T x, y, z;
@@ -90,6 +96,11 @@ namespace gmath {
                 return x * other.x + y * other.y + z * other.z;
             }
             
+            /**
+             * @brief Вычисляет векторное произведение векторов
+             * @param other Второй вектор
+             * @return Векторное произведение - новый векор
+             */
             [[nodiscard]] Vector3 cross(const Vector3& other) const {
                 return Vector3(
                     y * other.z - z * other.y,

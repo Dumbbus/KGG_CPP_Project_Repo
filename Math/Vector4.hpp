@@ -9,6 +9,12 @@ namespace gmath {
 
     //template<typename T> concept isFloatDouble = std::is_floating_point_v<T>;
 
+    /**
+     * @class Vector4
+     * @brief Шаблонный класс для работы с 4D векторами
+     * @tparam T Тип координат вектора (float или double)
+     *      
+     */
     template<isFloatDouble T> class Vector4 {
         public:
             T x, y, z, w;
