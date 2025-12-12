@@ -18,6 +18,7 @@ file(GLOB LIGHT_SOURCES "Light/*.cpp")
 file(GLOB MATH_SOURCES "Math/*.cpp")
 file(GLOB RW_SOURCES "ReadWrite/*.cpp")
 file(GLOB WINDOW_SOURCES "Window/*.cpp")
+file(GLOB TEST "Test/*.cpp")
 
 # Основной список исходников
 set(SOURCES
@@ -43,3 +44,13 @@ FetchContent_MakeAvailable(SFML)
 
 # Линкуем нужные SFML компоненты (Graphics подтянет Window и System автоматически)
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
+
+# Подключение gtest
+add_executable(Test_Normals Test/Test_Normals.cpp)
+
+enable_testing()
+
+find_package(GTest CONFIG REQUIRED)
+target_link_libraries(Test_Normals PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+
+add_test(Testing_Normals Test_Normals)
