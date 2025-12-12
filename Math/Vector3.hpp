@@ -15,7 +15,7 @@ namespace gmath {
      * @tparam T Тип координат вектора (float или double)
      *      
      */
-    template<isFloatDouble T> class Vector3 {
+    template<is_float_double T> class Vector3 {
         public:
             T x, y, z;
 
@@ -109,12 +109,12 @@ namespace gmath {
                 );
             }
             
-            [[nodiscard]] T lengthSquared() const {
+            [[nodiscard]] T length_squared() const {
                 return x * x + y * y + z * z;
             }
             
             [[nodiscard]] T length() const {
-                return std::sqrt(lengthSquared());
+                return std::sqrt(length_squared());
             }
             
             [[nodiscard]] Vector3 normalized() const {

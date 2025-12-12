@@ -27,7 +27,7 @@ namespace gmath {
      * @brief Концепт для проверки типа на соответствие float или double
      * @tparam T Проверяемый тип
      */
-    template<typename T> concept isFloatDouble = std::is_floating_point_v<T>;
+    template<typename T> concept is_float_double = std::is_floating_point_v<T>;
 
     /**
      * @class Vector2
@@ -35,7 +35,7 @@ namespace gmath {
      * @tparam T Тип координат вектора (float или double)
      *      
      */
-    template<isFloatDouble T> class Vector2 {
+    template<is_float_double T> class Vector2 {
         public:
             T x, y;
             
@@ -117,12 +117,12 @@ namespace gmath {
                 return x * other.x + y * other.y;
             }
                         
-            [[nodiscard]] T lengthSquared() const {
+            [[nodiscard]] T length_squared() const {
                 return x * x + y * y;
             }
             
             [[nodiscard]] T length() const {
-                return std::sqrt(lengthSquared());
+                return std::sqrt(length_squared());
             }
             
             [[nodiscard]] Vector2 normalized() const {
