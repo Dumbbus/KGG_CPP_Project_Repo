@@ -5,13 +5,12 @@
 #include <cmath>
 #include <ostream>
 #include <stdexcept>
+#include <limits>
 
 #include "MConcepts.hpp"
 
 
 namespace gmath {
-
-    
 
     /**
      * @class Vector2
@@ -24,10 +23,7 @@ namespace gmath {
             T x, y;
             
             Vector2() : x(0), y(0) {}
-            Vector2(T x, T y) : x(x), y(y) {}            
-            
-            Vector2(const Vector2& other) = default;
-            Vector2& operator=(const Vector2& other) = default;
+            Vector2(T x, T y) : x(x), y(y) {}                    
                         
             Vector2 operator+(const Vector2& other) const {
                 return Vector2(x + other.x, y + other.y);
@@ -90,6 +86,14 @@ namespace gmath {
             friend std::ostream& operator<<(std::ostream& os, const Vector2& vec) {
                 os << "(" << vec.x << ", " << vec.y << ")";
                 return os;
+            }
+
+            /**
+             * @brief Сравнение
+             * @param other Второй веткор            
+             */
+            bool equals(const Vector2& other, T eps = std::numeric_limits<T>::epsilon()) const {
+                return std::abs(x - other.x) < eps && std::abs(y - other.y) < eps;
             }
                        
             /**

@@ -4,12 +4,11 @@
 #include <cmath>
 #include <ostream>
 #include <stdexcept>
+#include <limits>
 
 #include "MConcepts.hpp"
 
-namespace gmath {
-
-    //template<typename T> concept isFloatDouble = std::is_floating_point_v<T>;
+namespace gmath {    
 
     /**
      * @class Vector3
@@ -24,8 +23,7 @@ namespace gmath {
             Vector3() : x(0), y(0), z(0) {}
             Vector3(T x, T y, T z) : x(x), y(y), z(z) {}
             Vector3(const Vector3& other) = default;          
-        
-            Vector3& operator=(const Vector3& other) = default;
+                    
             
             Vector3 operator+(const Vector3& other) const {
                 return Vector3(x + other.x, y + other.y, z + other.z);
@@ -96,6 +94,14 @@ namespace gmath {
 
             [[nodiscard]] T dot(const Vector3& other) const {
                 return x * other.x + y * other.y + z * other.z;
+            }
+
+            /**
+             * @brief Сравнение
+             * @param other Второй веткор            
+             */
+            bool equals(const Vector3& other, T eps = std::numeric_limits<T>::epsilon()) const {
+                return std::abs(x - other.x) < eps && std::abs(y - other.y) < eps && std::abs(z - other.z) < eps;
             }
             
             /**

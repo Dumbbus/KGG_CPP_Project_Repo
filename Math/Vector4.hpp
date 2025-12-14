@@ -4,12 +4,11 @@
 #include <cmath>
 #include <ostream>
 #include <stdexcept>
+#include <limits>
 
 #include "MConcepts.hpp"
 
-namespace gmath {
-
-    //template<typename T> concept isFloatDouble = std::is_floating_point_v<T>;
+namespace gmath {    
 
     /**
      * @class Vector4
@@ -22,10 +21,7 @@ namespace gmath {
             T x, y, z, w;
             
             Vector4() : x(0), y(0), z(0), w(0) {}
-            Vector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}                                 
-            
-            Vector4(const Vector4& other) = default;
-            Vector4& operator=(const Vector4& other) = default;
+            Vector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}                                                         
                         
             Vector4 operator+(const Vector4& other) const {
                 return Vector4(x + other.x, y + other.y, z + other.z, w + other.w);
@@ -96,6 +92,14 @@ namespace gmath {
             friend std::ostream& operator<<(std::ostream& os, const Vector4& vec) {
                 os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ")";
                 return os;
+            }
+
+            /**
+             * @brief Сравнение
+             * @param other Второй веткор            
+             */
+            bool equals(const Vector4& other, T eps = std::numeric_limits<T>::epsilon()) const {
+                return std::abs(x - other.x) < eps && std::abs(y - other.y) < eps && std::abs(z - other.z) < eps && std::abs(w - other.w) < eps;
             }
             
             [[nodiscard]] T dot(const Vector4& other) const {
