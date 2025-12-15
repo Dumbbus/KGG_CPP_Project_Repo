@@ -3,37 +3,27 @@
 #include <concepts>
 #include <cmath>
 #include <ostream>
+#include <stdexcept>
+#include <limits>
 
-namespace gmath {
+#include "MConcepts.hpp"
 
-    template<typename T> concept Chislo = std::is_arithmetic_v<T>;
+namespace gmath {    
 
-    template<Chislo T> class Vector3 {
+    /**
+     * @class Vector3
+     * @brief Шаблонный класс для работы с 3D векторами
+     * @tparam T Тип координат вектора (float или double)
+     *      
+     */
+    template<is_float_double T> class Vector3 {
         public:
             T x, y, z;
 
             Vector3() : x(0), y(0), z(0) {}
             Vector3(T x, T y, T z) : x(x), y(y), z(z) {}
-            Vector3(const Vector3& other) = default;
-
-
-            static Vector3<T> Null() { 
-                return Vector3<T>(0, 0, 0);
-            }
-            static Vector3<T> One() {
-                return Vector3<T>(1, 1, 1);
-            }
-            static Vector3<T> Up() { 
-                return Vector3<T>(0, 1, 0);
-            }            
-            static Vector3<T> Right() {
-                return Vector3<T>(1, 0, 0);
-            }            
-            static Vector3<T> Forward() {
-                return Vector3<T>(0, 0, 1);
-            }            
-        
-            Vector3& operator=(const Vector3& other) = default;
+            Vector3(const Vector3& other) = default;          
+                    
             
             Vector3 operator+(const Vector3& other) const {
                 return Vector3(x + other.x, y + other.y, z + other.z);
@@ -102,11 +92,24 @@ namespace gmath {
                 return os;
             }
 
-            T dot(const Vector3& other) const {
+            [[nodiscard]] T dot(const Vector3& other) const {            
                 return x * other.x + y * other.y + z * other.z;
             }
+
+            /**
+             * @brief Сравнение
+             * @param other Второй веткор            
+             */
+            bool equals(const Vector3& other, T eps = std::numeric_limits<T>::epsilon()) const {
+                return std::abs(x - other.x) < eps && std::abs(y - other.y) < eps && std::abs(z - other.z) < eps;
+            }
             
-            Vector3 cross(const Vector3& other) const {
+            /**
+             * @brief Вычисляет векторное произведение векторов
+             * @param other Второй вектор
+             * @return Векторное произведение - новый векор
+             */
+            [[nodiscard]] Vector3 cross(const Vector3& other) const {
                 return Vector3(
                     y * other.z - z * other.y,
                     z * other.x - x * other.z,
@@ -114,15 +117,15 @@ namespace gmath {
                 );
             }
             
-            T lengthSquared() const {
+            [[nodiscard]] T length_squared() const noexcept {
                 return x * x + y * y + z * z;
             }
             
-            T length() const {
-                return std::sqrt(lengthSquared());
+            [[nodiscard]] T length() const noexcept {
+                return std::sqrt(length_squared());
             }
             
-            Vector3 normalized() const {
+            [[nodiscard]] Vector3 normalized() const {
                 T len = length();
                 if (len == 0) return *this;
                 return *this / len;
@@ -130,13 +133,11 @@ namespace gmath {
             
             void normalize() {
                 T len = length();
-                if (len != 0) {
-                    *this /= len;
-                }
+                if (len == 0) return;           
+                *this /= len;
             }
     };
 
     using Vector3f = Vector3<float>;
-    using Vector3d = Vector3<double>;
-    using Vector3i = Vector3<int>;
+    using Vector3d = Vector3<double>;    
 }
