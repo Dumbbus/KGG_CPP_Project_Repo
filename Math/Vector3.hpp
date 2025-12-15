@@ -92,7 +92,7 @@ namespace gmath {
                 return os;
             }
 
-            [[nodiscard]] T dot(const Vector3& other) const {            
+            [[nodiscard]] T dot(const Vector3& other) const {
                 return x * other.x + y * other.y + z * other.z;
             }
 
