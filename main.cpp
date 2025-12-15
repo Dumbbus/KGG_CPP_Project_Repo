@@ -8,7 +8,7 @@
 #include "Math/Vector2.hpp"
 #include "Math/Vector3.hpp"
 #include "Math/Vector4.hpp"
-#include "Math/Matrix3x3.hpp"
+#include "Math/Matrix3.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "SFML Example");
@@ -20,7 +20,7 @@ int main() {
     gmath::Vector3f a(1.0f, 2.0f, 3.0f);
     std::cout << a << std::endl;
 
-    gmath::Matrix3x3f m();    
+    gmath::Matrix3f m();    
     
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);

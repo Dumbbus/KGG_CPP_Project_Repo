@@ -5,10 +5,7 @@
 #include <ostream>
 #include <stdexcept>
 #include <limits>
-<<<<<<< HEAD
 //#include <emmintrin.h>
-=======
->>>>>>> 4569ca08fd7037a987659b77bc7e9f70342c2836
 
 #include "MConcepts.hpp"
 
