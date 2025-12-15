@@ -7,6 +7,9 @@
 
 
 class Window {
+public:
+    static void create_Window();
+    static void drawcube();
 };
 
 
