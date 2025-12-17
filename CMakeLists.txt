@@ -27,7 +27,7 @@ FetchContent_MakeAvailable(SFML)
 
 # ---------- Main App ----------
 add_executable(KGG_CPP_Project_Repo
-        src/main.cpp
+        src/app/main.cpp
         src/Render/Render.cpp
         src/Render/shader.cpp
         src/Render/Mesh.cpp
