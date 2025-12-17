@@ -11,7 +11,7 @@ include_directories(
         src/main/readwrite
         src/main/window
         external/imgui
-        src/headers
+        headers
 
 )
 
