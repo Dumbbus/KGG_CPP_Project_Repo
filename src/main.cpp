@@ -6,14 +6,14 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-#include "Vector2.hpp"
-#include "Vector3.hpp"
-#include "Vector4.hpp"
-#include "Matrix3.hpp"
-#include "../Headers/Window.hpp"
+#include "Math/Vector2.hpp"
+#include "Math/Vector3.hpp"
+#include <Math/Vector4.hpp>
+#include <Math/Matrix3.hpp>
+#include "Window/Window.hpp"
 
 int main() {
-    gmath::Vector3<float> a(1.0f, 2.0f, 3.0f);
+    const gmath::Vector3<float> a(1.0f, 2.0f, 3.0f);
     std::cout << a << std::endl;
 
     Window::create_Window();

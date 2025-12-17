@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "Vector3.hpp"
-#include "MConcepts.hpp"
+#include <Math/Vector3.hpp>
+#include <Math/MConcepts.hpp>
 
 namespace gmath {
     template<is_float_double T> class Vector2 {

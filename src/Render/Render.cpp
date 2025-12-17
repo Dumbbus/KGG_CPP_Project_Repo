@@ -2,7 +2,7 @@
 // Created by lunarimoonlin on 12/14/25.
 //
 
-#include "Render.h"
+#include "Render/Render.h"
 
 #include "glad.h"
 GLuint VAO, VBO, EBO;

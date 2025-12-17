@@ -4,11 +4,12 @@
 
 #ifndef KGG_CPP_PROJECT_REPO_CAMERA_H
 #define KGG_CPP_PROJECT_REPO_CAMERA_H
-#include "Vector3.hpp"
+#include <Math/Vector3.hpp>
 
 
 class Camera {
-    public: gmath::Vector3d look_direction_vector(gmath::Vector3d target, gmath::Vector3d eye);
+    public:
+    static gmath::Vector3d look_direction_vector(gmath::Vector3d target, gmath::Vector3d eye);
 };
 
 

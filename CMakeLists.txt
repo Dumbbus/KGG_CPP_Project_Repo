@@ -1,63 +1,63 @@
-cmake_minimum_required(VERSION 3.10)
-project(KGG_CPP_Project_Repo VERSION 1.0 LANGUAGES CXX C)
+cmake_minimum_required(VERSION 3.20)
+project(KGG_CPP_Project_Repo LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Включаем подпапки с заголовочными файлами
-include_directories(
-        src/Light
-        src/Math
-        src/ReadWrite
-        src/Window
-        src/External
-        src/Headers
-)
+cmake_policy(SET CMP0072 NEW)
+set(OpenGL_GL_PREFERENCE GLVND)
 
-# Собираем все cpp-файлы из подпапок
-file(GLOB LIGHT_SOURCES "src/Light/*.cpp")
-file(GLOB MATH_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Main/Math/*.cpp")
-file(GLOB RW_SOURCES "src/ReadWrite/*.cpp")
-file(GLOB WINDOW_SOURCES "src/Window/*.cpp")
-file(GLOB GLAD_SOURCES "src/External/*.c")
+# ---------- OpenGL / GLFW ----------
+find_package(glfw3 CONFIG REQUIRED)
+find_package(OpenGL REQUIRED)
 
+# ---------- GLAD ----------
+add_library(glad STATIC External/khrplatform/glad.c)
+target_include_directories(glad PUBLIC External/khrplatform)
+set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
 
-# Основной список исходников
-set(SOURCES
-        src/Main/main.cpp
-        src/Light/Render.cpp
-        ${GLAD_SOURCES} ${GLAD_HEADERS}
-        ${LIGHT_SOURCES} ${LIGHT_HEADERS}
-        ${MATH_SOURCES} ${MATH_HEADERS}
-        ${RW_SOURCES} ${RW_HEADERS}
-        ${WINDOW_SOURCES} ${WINDOW_HEADERS}
-        src/Math/Vector2.hpp
-
-)
-
-# Создаем исполняемый файл
-add_executable(
-        ${PROJECT_NAME} ${SOURCES}
-)
-
-# Подключаем SFML через FetchContent
+# ---------- SFML ----------
 include(FetchContent)
-FetchContent_Declare(SFML
+FetchContent_Declare(
+        SFML
         GIT_REPOSITORY https://github.com/SFML/SFML.git
         GIT_TAG 3.0.2
-        GIT_SHALLOW ON
-        EXCLUDE_FROM_ALL
-        SYSTEM)
+)
 FetchContent_MakeAvailable(SFML)
 
-# Линкуем нужные SFML компоненты (Graphics подтянет Window и System автоматически)
-target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics)
+# ---------- Main App ----------
+add_executable(KGG_CPP_Project_Repo
+        src/main.cpp
+        src/Render/Render.cpp
+        src/Render/shader.cpp
+        src/Render/Mesh.cpp
+        src/ReadWrite/Reader.cpp
+        src/Light/Normal.cpp
+        src/Scene/Camera.cpp
+        src/UI/Button.cpp
+        src/Window/Window.cpp
+)
 
-add_executable(Test_Normals Test/Test_Normals.cpp)
+target_include_directories(KGG_CPP_Project_Repo
+        PUBLIC Include
+        PRIVATE src
+)
 
+target_link_libraries(KGG_CPP_Project_Repo
+        PRIVATE
+        glad
+        glfw
+        OpenGL::GL
+        SFML::Graphics
+)
+
+# ---------- Tests ----------
 enable_testing()
 
-find_package(GTest CONFIG REQUIRED)
-target_link_libraries(Test_Normals PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+add_executable(Test_Normals Test/Test_Normals.cpp)
+target_include_directories(Test_Normals PRIVATE Include)
 
-add_test(Testing_Normals Test_Normals)
+find_package(GTest CONFIG REQUIRED)
+target_link_libraries(Test_Normals PRIVATE GTest::gtest_main glad)
+
+add_test(NAME Testing_Normals COMMAND Test_Normals)

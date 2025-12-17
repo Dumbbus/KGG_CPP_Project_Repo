@@ -1,27 +1,40 @@
-//
-// Created by akemi on 09.12.2025.
-//
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
-#include "../Headers/Window.hpp"
+// Source - https://stackoverflow.com/a/43464668
+// Posted by Matt Martin
+// Retrieved 2025-12-17, License - CC BY-SA 3.0
 
-#include "Vector3.hpp"
+#define GLFW_DLL
+
+#include <iostream>
+#include "Window/Window.hpp"
+#include <GLFW/glfw3.h>
+#include <GL/gl.h>
+
 void Window::create_Window() {
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "SFML Example");
-
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
-    while (window.isOpen()) {
-        // pollEvent теперь возвращает std::optional<Event>
-        while (auto event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                window.close();
-            }
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW\n";
+        return;
     }
+    int width = 800;
+    int height = 600;
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    GLFWwindow* window = glfwCreateWindow(width, height, "Test", NULL, NULL);
+    if (!window) {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return;
+    }
+    glfwMakeContextCurrent(window);
+    while (!glfwWindowShouldClose(window)) {
+        // Clear the screen
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Swap buffers and process events
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    // Cleanup
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return;
 }
