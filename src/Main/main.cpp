@@ -5,40 +5,18 @@
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include "Math/Vector2.hpp"
-#include "Math/Vector3.hpp"
-#include "Math/Vector4.hpp"
-#include "Math/Matrix3.hpp"
+
+#include "Vector2.hpp"
+#include "Vector3.hpp"
+#include "Vector4.hpp"
+#include "Matrix3.hpp"
+#include "../Headers/Window.hpp"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "SFML Example");
-    window.setFramerateLimit(60);
-
-    
-    gmath::Vector3f vec(1.0f, 2.0f, 3.0f);
-    std::cout << vec << std::endl;
-    gmath::Vector3f a(1.0f, 2.0f, 3.0f);
+    gmath::Vector3<float> a(1.0f, 2.0f, 3.0f);
     std::cout << a << std::endl;
 
-    gmath::Matrix3f m();    
-    
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close(); 
-            }
-            
-            /*Здесь же обработка нажатий*/
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
+    Window::create_Window();
 
     return 0;
 }
