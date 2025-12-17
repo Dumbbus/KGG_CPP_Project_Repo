@@ -6,32 +6,32 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Включаем подпапки с заголовочными файлами
 include_directories(
-        src/Main/Light
-        src/Main/Math
-        src/Main/ReadWrite
-        src/Main/Window
-        src/External
-        src/Headers
+        src/main/light
+        src/main/math
+        src/main/readwrite
+        src/main/window
+        external/imgui
+        src/headers
+
 )
 
 # Собираем все cpp-файлы из подпапок
-file(GLOB LIGHT_SOURCES "src/Main/Light/*.cpp")
+file(GLOB LIGHT_SOURCES "src/main/light/*.cpp")
 file(GLOB MATH_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/Main/Math/*.cpp")
-file(GLOB RW_SOURCES "src/Main/ReadWrite/*.cpp")
-file(GLOB WINDOW_SOURCES "src/Main/Window/*.cpp")
-file(GLOB GLAD_SOURCES "src/External/*.c")
+file(GLOB RW_SOURCES "src/main/readwrite/*.cpp")
+file(GLOB WINDOW_SOURCES "src/main/window/*.cpp")
+file(GLOB GLAD_SOURCES "external/*.c")
 
 
 # Основной список исходников
 set(SOURCES
-        src/Main/main.cpp
-        src/Main/Light/Render.cpp
+        src/main/main.cpp
         ${GLAD_SOURCES} ${GLAD_HEADERS}
         ${LIGHT_SOURCES} ${LIGHT_HEADERS}
         ${MATH_SOURCES} ${MATH_HEADERS}
         ${RW_SOURCES} ${RW_HEADERS}
         ${WINDOW_SOURCES} ${WINDOW_HEADERS}
-        src/Main/Math/Vector2.hpp
+        src/main/math/Vector2.hpp
 
 )
 
