@@ -4,7 +4,6 @@
 
 #ifndef KGG_CPP_PROJECT_REPO_RENDER_H
 #define KGG_CPP_PROJECT_REPO_RENDER_H
-#include <glad.h>
 
 
 class Render {

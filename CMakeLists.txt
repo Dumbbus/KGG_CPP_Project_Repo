@@ -11,11 +11,6 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(OpenGL REQUIRED)
 
-# ---------- GLAD ----------
-add_library(glad STATIC External/khrplatform/glad.c)
-target_include_directories(glad PUBLIC External/khrplatform)
-set_target_properties(glad PROPERTIES LINKER_LANGUAGE C)
-
 # ---------- SFML ----------
 include(FetchContent)
 FetchContent_Declare(
@@ -36,16 +31,17 @@ add_executable(KGG_CPP_Project_Repo
         src/Scene/Camera.cpp
         src/UI/Button.cpp
         src/Window/Window.cpp
+        src/app/main.cpp
+        src/app/main.cpp
 )
 
 target_include_directories(KGG_CPP_Project_Repo
-        PUBLIC Include
+        PUBLIC include
         PRIVATE src
 )
 
 target_link_libraries(KGG_CPP_Project_Repo
         PRIVATE
-        glad
         glfw
         OpenGL::GL
         SFML::Graphics
@@ -54,10 +50,11 @@ target_link_libraries(KGG_CPP_Project_Repo
 # ---------- Tests ----------
 enable_testing()
 
-add_executable(Test_Normals Test/Test_Normals.cpp)
-target_include_directories(Test_Normals PRIVATE Include)
+add_executable(Test_Normals test/Test_Normals.cpp
+        src/app/main.cpp)
+target_include_directories(Test_Normals PRIVATE include)
 
-find_package(GTest CONFIG REQUIRED)
-target_link_libraries(Test_Normals PRIVATE GTest::gtest_main glad)
+#find_package(GTest CONFIG REQUIRED)
+#target_link_libraries(Test_Normals PRIVATE GTest::gtest_main glad)
 
 add_test(NAME Testing_Normals COMMAND Test_Normals)
