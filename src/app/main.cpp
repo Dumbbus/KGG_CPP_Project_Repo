@@ -1,7 +1,7 @@
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include "../../headers/math/Math.hpp"
+#include "../../include/math/Math.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "SFML Example");
