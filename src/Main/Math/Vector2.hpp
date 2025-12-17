@@ -1,41 +1,29 @@
+
 #pragma once
 
 #include <concepts>
 #include <cmath>
 #include <ostream>
+#include <stdexcept>
+#include <limits>
+
+#include "MConcepts.hpp"
+
 
 namespace gmath {
 
-    template<typename T> concept Chislo = std::is_arithmetic_v<T>;
-
-    template<Chislo T> class Vector2 {
+    /**
+     * @class Vector2
+     * @brief Шаблонный класс для работы с 2D векторами
+     * @tparam T Тип координат вектора (float или double)
+     *      
+     */
+    template<is_float_double T> class Vector2 {
         public:
             T x, y;
             
             Vector2() : x(0), y(0) {}
-            Vector2(T x, T y) : x(x), y(y) {}
-            
-            static Vector2<T> Null() { 
-                return Vector2<T>(0, 0);
-            }
-            static Vector2<T> One() {
-                return Vector2<T>(1, 1);
-            }
-            static Vector2<T> Up() { 
-                return Vector2<T>(0, 1);
-            }            
-            static Vector2<T> Right() {
-                return Vector2<T>(1, 0);
-            }
-            static Vector2<T> Down() {
-                return Vector2<T>(0, -1);
-            }
-            static Vector2<T> Left() {
-                return Vector2<T>(-1, 0);
-            }
-            
-            Vector2(const Vector2& other) = default;
-            Vector2& operator=(const Vector2& other) = default;
+            Vector2(T x, T y) : x(x), y(y) {}                    
                         
             Vector2 operator+(const Vector2& other) const {
                 return Vector2(x + other.x, y + other.y);
@@ -99,31 +87,46 @@ namespace gmath {
                 os << "(" << vec.x << ", " << vec.y << ")";
                 return os;
             }
-            
-            T dot(const Vector2& other) const {
+
+            /**
+             * @brief Сравнение
+             * @param other Второй веткор            
+             */
+            bool equals(const Vector2& other, T eps = std::numeric_limits<T>::epsilon()) const {
+                return std::abs(x - other.x) < eps && std::abs(y - other.y) < eps;
+            }
+                       
+            /**
+             * @brief Скалярное произведение векторов
+             * @param other Второй вектор
+             * @return Скалярное произведение - число
+             */
+            [[nodiscard]] T dot(const Vector2& other) const {
                 return x * other.x + y * other.y;
             }
                         
-            T lengthSquared() const {
+            [[nodiscard]] T length_squared() const noexcept {
                 return x * x + y * y;
             }
             
-            T length() const {
-                return std::sqrt(lengthSquared());
+            [[nodiscard]] T length() const noexcept {
+                return std::sqrt(length_squared());
             }
             
-            Vector2 normalized() const {
+            [[nodiscard]] Vector2 normalized() const {
                 T len = length();                
+                if (len == 0) return *this;
                 return *this / len;
             }
             
             void normalize() {
-                T len = length();                
+                T len = length();     
+                if (len == 0) return;           
                 *this /= len;
             }
     };
 
     using Vector2f = Vector2<float>;
-    using Vector2d = Vector2<double>;
-    using Vector2i = Vector2<int>;
+    using Vector2d = Vector2<double>;    
 }
+
