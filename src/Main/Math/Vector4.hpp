@@ -3,39 +3,26 @@
 #include <concepts>
 #include <cmath>
 #include <ostream>
+#include <stdexcept>
+#include <limits>
+//#include <emmintrin.h>
 
-namespace gmath {
+#include "MConcepts.hpp"
 
-    template<typename T> concept Chislo = std::is_arithmetic_v<T>;
+namespace gmath {    
 
-    template<Chislo T> class Vector4 {
+    /**
+     * @class Vector4
+     * @brief Шаблонный класс для работы с 4D векторами
+     * @tparam T Тип координат вектора (float или double)
+     *      
+     */
+    template<is_float_double T> class Vector4 {
         public:
-            T x, y, z, w;
+            T x, y, z, w;            
             
             Vector4() : x(0), y(0), z(0), w(0) {}
-            Vector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}            
-
-            static Vector4<T> Null() { 
-                return Vector4<T>(0, 0, 0, 0);
-            }
-            static Vector4<T> One() {
-                return Vector4<T>(1, 1, 1, 1);
-            }            
-            static Vector4<T> Up() { 
-                return Vector4<T>(0, 1, 0, 0);
-            }            
-            static Vector4<T> Right() {
-                return Vector4<T>(1, 0, 0, 0);
-            }            
-            static Vector4<T> Forward() {
-                return Vector4<T>(0, 0, 1, 0);
-            }
-            /*static Vector4<T> ?() {
-                return Vector4<T>(0, 0, 0, 1);
-            }*/
-            
-            Vector4(const Vector4& other) = default;
-            Vector4& operator=(const Vector4& other) = default;
+            Vector4(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}                                                         
                         
             Vector4 operator+(const Vector4& other) const {
                 return Vector4(x + other.x, y + other.y, z + other.z, w + other.w);
@@ -71,7 +58,7 @@ namespace gmath {
                 w -= other.w;
                 return *this;
             }
-            
+                                    
             Vector4& operator*=(T scalar) {
                 x *= scalar;
                 y *= scalar;
@@ -107,31 +94,40 @@ namespace gmath {
                 os << "(" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ")";
                 return os;
             }
+
+            /**
+             * @brief Сравнение
+             * @param other Второй веткор            
+             */
+            bool equals(const Vector4& other, T eps = std::numeric_limits<T>::epsilon()) const {
+                return std::abs(x - other.x) < eps && std::abs(y - other.y) < eps && std::abs(z - other.z) < eps && std::abs(w - other.w) < eps;
+            }
             
-            T dot(const Vector4& other) const {
+            [[nodiscard]] T dot(const Vector4& other) const {
                 return x * other.x + y * other.y + z * other.z + w * other.w;
             }            
                         
-            T lengthSquared() const {
+            [[nodiscard]] T length_squared() const noexcept {
                 return x * x + y * y + z * z + w * w;
             }
             
-            T length() const {
-                return std::sqrt(lengthSquared());
+            [[nodiscard]] T length() const noexcept {
+                return std::sqrt(length_squared());
             }
             
-            Vector4 normalized() const {
+            [[nodiscard]] Vector4 normalized() const {
                 T len = length();                
+                if (len == 0) return *this;
                 return *this / len;
             }
             
             void normalize() {
                 T len = length();                
+                if (len == 0) return;           
                 *this /= len;
             }            
     };
 
     using Vector4f = Vector4<float>;
-    using Vector4d = Vector4<double>;
-    using Vector4i = Vector4<int>;
+    using Vector4d = Vector4<double>;    
 }
