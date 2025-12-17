@@ -1,14 +1,7 @@
-//
-// Created by akemi on 09.12.25.
-//
-
 #include <iostream>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
-#include "Math/Vector2.hpp"
-#include "Math/Vector3.hpp"
-#include "Math/Vector4.hpp"
-#include "Math/Matrix3.hpp"
+#include "../../headers/math/Math.hpp"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "SFML Example");
