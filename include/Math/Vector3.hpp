@@ -23,7 +23,7 @@ namespace gmath {
             Vector3() : x(0), y(0), z(0) {}
             Vector3(T x, T y, T z) : x(x), y(y), z(z) {}
             Vector3(const Vector3& other) = default;          
-                    
+
             
             Vector3 operator+(const Vector3& other) const {
                 return Vector3(x + other.x, y + other.y, z + other.z);
@@ -136,6 +136,11 @@ namespace gmath {
                 if (len == 0) return;           
                 *this /= len;
             }
+
+            static Vector3 Null() {
+                    return Vector3(0, 0, 0);
+                }
+
     };
 
     using Vector3f = Vector3<float>;

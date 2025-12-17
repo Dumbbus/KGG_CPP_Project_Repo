@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 #include "MConcepts.hpp"
-#include "Vector4.hpp"
+#include "../../src/Math/Vector4.hpp"
 
 namespace gmath {
 

@@ -2,7 +2,9 @@
 // Created by lunarimoonlin on 12/14/25.
 //
 
-#include "../../Headers/Render.h"
+#include "Render/Render.h"
+
+#include "glad.h"
 GLuint VAO, VBO, EBO;
     void Render::render(float vertices[], unsigned int indices[]) {
         glGenVertexArrays(1, &VAO);
