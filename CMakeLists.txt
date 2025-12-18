@@ -33,6 +33,11 @@ add_executable(KGG_CPP_Project_Repo
         src/Window/Window.cpp
         src/app/main.cpp
         src/app/main.cpp
+        include/Window/Framebuffer.h
+        src/Window/Framebuffer.cpp
+        include/Window/Color.hpp
+        include/Render/Rasterizer.h
+        src/Render/Rasterizer.cpp
 )
 
 target_include_directories(KGG_CPP_Project_Repo
@@ -54,7 +59,7 @@ add_executable(Test_Normals test/Test_Normals.cpp
         src/app/main.cpp)
 target_include_directories(Test_Normals PRIVATE include)
 
-#find_package(GTest CONFIG REQUIRED)
-#target_link_libraries(Test_Normals PRIVATE GTest::gtest_main glad)
+find_package(GTest CONFIG REQUIRED)
+target_link_libraries(Test_Normals PRIVATE GTest::gtest_main glad)
 
 add_test(NAME Testing_Normals COMMAND Test_Normals)
