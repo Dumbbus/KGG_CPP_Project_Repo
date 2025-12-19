@@ -1,90 +1,46 @@
-// Source - https://stackoverflow.com/a/43464668
-// Posted by Matt Martin
-// Retrieved 2025-12-17, License - CC BY-SA 3.0
 #include <iostream>
 #include "Window/Window.hpp"
 #include <GLFW/glfw3.h>
-#include <GL/gl.h>
+#include "backends/imgui_impl_opengl3.h"
+#include <SFML/Graphics.hpp>
 
-#include "SFML/Graphics/RenderWindow.hpp"
-#include "SFML/Graphics/Sprite.hpp"
-#include "SFML/Graphics/Texture.hpp"
-#include "Window/Framebuffer.h"
-#include "Render/Rasterizer.h"
+#include "imgui-SFML.h"
+
 
 void Window::create_Window() {
-    // if (!glfwInit()) {
-    //     std::cerr << "Failed to initialize GLFW\n";
-    //     return;
-    // }
-    // int width = 800;
-    // int height = 600;
-    // GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    // GLFWwindow* window = glfwCreateWindow(width, height, "Test", NULL, NULL);
-    // if (!window) {
-    //     std::cout << "Failed to create GLFW window" << std::endl;
-    //     glfwTerminate();
-    //     return;
-    // }
-    // glfwMakeContextCurrent(window);
-    // while (!glfwWindowShouldClose(window)) {
-    //     // Clear the screen
-    //     glClear(GL_COLOR_BUFFER_BIT);
-    //
-    //     // Swap buffers and process events
-    //     glfwSwapBuffers(window);
-    //     glfwPollEvents();
-    // }
-    //
-    // // Cleanup
-    // glfwDestroyWindow(window);
-    // glfwTerminate();
-    // return;
+    sf::RenderWindow window(
+     sf::VideoMode({800, 600}, 64),
+     "SFML + ImGui"
+ );
 
-    constexpr uint32_t WIDTH = 800;
-    constexpr uint32_t HEIGHT = 600;
+    window.setFramerateLimit(60);
 
-    sf::RenderWindow window(sf::VideoMode({WIDTH, HEIGHT}), "Render Test");
+    ImGui::SFML::Init(window);
 
-    render::Framebuffer fb(WIDTH, HEIGHT);
+    sf::Clock deltaClock;
 
-    sf::Texture texture(sf::Vector2u(WIDTH, HEIGHT));
+    while (window.isOpen())
+    {
+        while (auto event = window.pollEvent())
+        {
+            ImGui::SFML::ProcessEvent(window, *event);
 
-    sf::Sprite sprite(texture);
-
-    while (window.isOpen()) {
-        while (const std::optional event = window.pollEvent()) {
-            if (event -> is<sf::Event::Closed>()) {
+            if (event->is<sf::Event::Closed>())
                 window.close();
-            }
         }
 
-        fb.clear(render::Color::black());
-        //fb.set_pixel(400, 300, render::Color::red());
+        ImGui::SFML::Update(window, deltaClock.restart());
 
-         // render::Rasterizer::draw_triangle(
-         //     fb,
-         //     {200.f, 100.f},
-         //     {600.f, 150.f},
-         //     {400.f, 500.f},
-         //     render::Color::green()
-         //     );
+        ImGui::Begin("Hello");
+        ImGui::Text("SFML 3 + ImGui works");
+        ImGui::End();
 
-        render::Rasterizer::draw_colored_triangle(
-            fb,
-            {200.f, 100.f},
-            {600.f, 150.f},
-            {400.f, 500.f},
-            render::Color::red(),
-            render::Color::blue(),
-            render::Color::green()
-            );
-
-
-        texture.update(fb.get_data());
-
-        window.clear();
-        window.draw(sprite);
+        window.clear(sf::Color(30, 30, 40));
+        ImGui::SFML::Render(window);
         window.display();
     }
+
+    ImGui::SFML::Shutdown();
+    return;
+
 }
