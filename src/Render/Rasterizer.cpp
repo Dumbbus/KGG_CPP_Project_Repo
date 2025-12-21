@@ -149,7 +149,6 @@ namespace render {
                         alpha, beta, gamma,
                         color_a, color_b, color_c
                         );
-
                     framebuffer.set_pixel(x, y, result);
                 }
             }

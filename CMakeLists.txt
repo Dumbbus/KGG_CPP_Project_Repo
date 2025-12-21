@@ -39,6 +39,7 @@ FetchContent_Declare(ImGui-SFML
         EXCLUDE_FROM_ALL
         SYSTEM)
 FetchContent_MakeAvailable(ImGui-SFML)
+
 # -------------------------------------
 
 # ---------- Main App ----------
@@ -54,6 +55,8 @@ add_executable(KGG_CPP_Project_Repo
         src/Window/Window.cpp
         src/app/main.cpp
         src/app/main.cpp
+        src/Window/Framebuffer.cpp
+        src/Render/Rasterizer.cpp
 )
 
 target_include_directories(KGG_CPP_Project_Repo
@@ -69,5 +72,4 @@ target_link_libraries(KGG_CPP_Project_Repo
         SFML::Graphics
         ImGui-SFML::ImGui-SFML
 )
-
 # ---------- Tests ----------
