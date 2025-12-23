@@ -1,10 +1,11 @@
 #include <iostream>
 #include "Window/Window.hpp"
 #include <GLFW/glfw3.h>
-#include "backends/imgui_impl_opengl3.h"
 #include <SFML/Graphics.hpp>
-
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include "imgui-SFML.h"
+#include "imgui.h"
 #include "Render/Rasterizer.h"
 #include "Window/Framebuffer.h"
 constexpr uint32_t WIDTH = 800;
@@ -47,16 +48,22 @@ void Window::create_Window() {
             render::Color::blue(),
             render::Color::green()
             );
+        render::Rasterizer::draw_colored_triangle(
+            fb,
+            {250.f, 100.f},
+            {670.f, 250.f},
+            {100.f, 1000.f},
+            render::Color::red(),
+            render::Color::blue(),
+            render::Color::green()
+            );
         ImGui::SFML::Update(window, deltaClock.restart());
-
-
-        texture.setRepeated(false);
         texture.update(fb.get_data());
-
-           window.clear(sf::Color(100, 0, 0));
+        window.clear(sf::Color(100, 0, 0));
         window.draw(sprite);
         ImGui::Begin("Hello");
         ImGui::Text("SFML 3 + ImGui works");
+        ImGui::Image(texture);
         ImGui::End();
         ImGui::SFML::Render(window);
         window.display();

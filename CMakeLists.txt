@@ -29,6 +29,22 @@ FetchContent_Declare(ImGui
         EXCLUDE_FROM_ALL
         SYSTEM)
 FetchContent_MakeAvailable(ImGui)
+add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
+
+target_include_directories(imgui PUBLIC
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+)
+
+target_link_libraries(imgui PUBLIC glfw)
+
 FetchContent_GetProperties(ImGui SOURCE_DIR IMGUI_DIR)
 set(IMGUI_SFML_FIND_SFML OFF)
 
@@ -41,7 +57,15 @@ FetchContent_Declare(ImGui-SFML
 FetchContent_MakeAvailable(ImGui-SFML)
 
 # -------------------------------------
-
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+#set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+include(GoogleTest)
 # ---------- Main App ----------
 add_executable(KGG_CPP_Project_Repo
         src/app/main.cpp
@@ -61,15 +85,26 @@ add_executable(KGG_CPP_Project_Repo
 
 target_include_directories(KGG_CPP_Project_Repo
         PUBLIC include
-        PRIVATE external/imSFML
-        PRIVATE external/imgui
         PRIVATE src
 )
 target_link_libraries(KGG_CPP_Project_Repo
         PRIVATE
+        imgui
         glfw
         OpenGL::GL
         SFML::Graphics
         ImGui-SFML::ImGui-SFML
 )
 # ---------- Tests ----------
+enable_testing()
+
+add_executable(Test_Normals
+        test/Test_Normals.cpp
+)
+
+target_link_libraries(Test_Normals
+        PRIVATE
+        GTest::gtest_main
+)
+
+add_test(NAME NormalsTests COMMAND Test_Normals)
