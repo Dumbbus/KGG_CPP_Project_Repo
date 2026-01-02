@@ -38,25 +38,30 @@ void Window::create_Window() {
                 window.close();
         }
         fb.clear(render::Color::black());
+        fb.clear_depth(1.0f);
 
+        // ДАЛЬНИЙ треугольник (z = 0.8)
         render::Rasterizer::draw_colored_triangle(
             fb,
-            {200.f, 100.f},
-            {600.f, 150.f},
-            {400.f, 500.f},
+            {200.f, 150.f, 0.8f},
+            {600.f, 200.f, 0.8f},
+            {400.f, 500.f, 0.8f},
             render::Color::red(),
             render::Color::blue(),
             render::Color::green()
-            );
+        );
+
+        // БЛИЖНИЙ треугольник (z = 0.3)
         render::Rasterizer::draw_colored_triangle(
             fb,
-            {250.f, 100.f},
-            {670.f, 250.f},
-            {100.f, 1000.f},
-            render::Color::red(),
-            render::Color::blue(),
-            render::Color::green()
-            );
+            {250.f, 200.f, 0.8f},
+            {550.f, 250.f, 0.8f},
+            {400.f, 450.f, 0.8f},
+            render::Color::white(),
+            render::Color::white(),
+            render::Color::white()
+        );
+
         ImGui::SFML::Update(window, deltaClock.restart());
         texture.update(fb.get_data());
         window.clear(sf::Color(100, 0, 0));

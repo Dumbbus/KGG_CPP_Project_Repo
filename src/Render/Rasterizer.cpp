@@ -98,7 +98,7 @@ namespace render {
                 float w2 = edge(a, b, pixel);
 
                 if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
-                    framebuffer.set_pixel(x, y, color);
+                    framebuffer.set_pixel(x, y, color, 1.0f);
                 }
             }
         }
@@ -149,7 +149,75 @@ namespace render {
                         alpha, beta, gamma,
                         color_a, color_b, color_c
                         );
-                    framebuffer.set_pixel(x, y, result);
+                    framebuffer.set_pixel(x, y, result, 1.0f);
+                }
+            }
+        }
+    }
+
+    void Rasterizer::draw_colored_triangle(
+        Framebuffer& framebuffer,
+        const gmath::Vector3<float> a,
+        const gmath::Vector3<float> b,
+        const gmath::Vector3<float> c,
+        const Color& color_a,
+        const Color& color_b,
+        const Color& color_c
+    ) {
+        const int min_x = static_cast<int>(
+            std::floor(std::min({a.x, b.x, c.x}))
+            );
+        const int max_x = static_cast<int>(
+            std::floor(std::max({a.x, b.x, c.x}))
+            );
+        const int min_y = static_cast<int>(
+            std::floor(std::min({a.y, b.y, c.y}))
+            );
+        const int max_y = static_cast<int>(
+            std::floor(std::max({a.y, b.y, c.y}))
+            );
+
+        const float area = edge(
+            gmath::Vector2(a.x, a.y),
+            gmath::Vector2(b.x, b.y),
+            gmath::Vector2(c.x, c.y));
+        if (area == 0.0f) {
+            return;
+        }
+
+        for (int y = min_y; y <= max_y; ++y) {
+            for (int x = min_x; x <= max_x; ++x) {
+                gmath::Vector2<float> pixel(x + 0.5f, y + 0.5f);
+
+                float w0 = edge(
+                    gmath::Vector2(b.x, b.y),
+                    gmath::Vector2(c.x, c.y),
+                    gmath::Vector2(pixel.x, pixel.y)
+                    );
+                float w1 = edge(
+                    gmath::Vector2(c.x, c.y),
+                    gmath::Vector2(a.x, a.y),
+                    gmath::Vector2(pixel.x, pixel.y)
+                    );
+                float w2 = edge(
+                    gmath::Vector2(a.x, a.y),
+                    gmath::Vector2(b.x, b.y),
+                    gmath::Vector2(pixel.x, pixel.y)
+                    );
+
+                if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
+                    //framebuffer.set_pixel(x, y, color);
+                    float alpha = w0 / area;
+                    float beta = w1 / area;
+                    float gamma = w2 / area;
+
+                    Color result = interpolate_color(
+                        alpha, beta, gamma,
+                        color_a, color_b, color_c
+                        );
+                    float z = alpha * a.z + beta * b.z + gamma * c.z;
+
+                    framebuffer.set_pixel(x, y, result, z);
                 }
             }
         }
