@@ -5,7 +5,9 @@
 #include <stdexcept>
 
 #include "MConcepts.hpp"
+#include "Vector3.hpp"
 #include "../../src/Math/Vector4.hpp"
+#include "SFML/System/Vector3.hpp"
 
 namespace gmath {
 
@@ -52,8 +54,57 @@ namespace gmath {
          */
         static Matrix4 zero() {
             return Matrix4();
-        }        
-                
+        }
+
+        static Matrix4 translation(const Vector3<T>& vec) {
+            Matrix4 matrix = edinich();
+            matrix.data[0][3] = vec.x;
+            matrix.data[1][3] = vec.y;
+            matrix.data[2][3] = vec.z;
+            return matrix;
+        }
+
+        static Matrix4 scale(const Vector3<T>& vec) {
+            Matrix4 matrix = edinich();
+            matrix.data[0][0] = vec.x;
+            matrix.data[1][1] = vec.y;
+            matrix.data[2][2] = vec.z;
+            return matrix;
+        }
+
+        static Matrix4 rotation_x(T angle) {
+            Matrix4 matrix = edinich();
+            T cos = std::cos(angle);
+            T sin = std::sin(angle);
+            matrix.data[1][1] = cos;
+            matrix.data[1][2] = -sin;
+            matrix.data[2][1] = sin;
+            matrix.data[2][2] = cos;
+            return matrix;
+        }
+
+        static Matrix4 rotation_y(T angle) {
+            Matrix4 matrix = edinich();
+            T cos = std::cos(angle);
+            T sin = std::sin(angle);
+            matrix.data[0][0] = cos;
+            matrix.data[0][2] = sin;
+            matrix.data[2][0] = -sin;
+            matrix.data[2][2] = cos;
+            return matrix;
+        }
+
+        static Matrix4 rotation_z(T angle) {
+            Matrix4 matrix = edinich();
+            T cos = std::cos(angle);
+            T sin = std::sin(angle);
+            matrix.data[0][0] = cos;
+            matrix.data[0][1] = -sin;
+            matrix.data[1][0] = sin;
+            matrix.data[1][1] = cos;
+            return matrix;
+        }
+
         /**
          * @brief Доступ к элементу матрицы 
          * @param row Строка 
