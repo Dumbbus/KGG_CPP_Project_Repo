@@ -6,14 +6,23 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
+#include "ReadWrite/Object.h"
+#include "ReadWrite/Reader.h"
 #include "Render/Rasterizer.h"
 #include "Window/Framebuffer.h"
+#include "ReadWrite/Reader.h"
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
-
+std::vector<Object> objects;
 void Window::create_Window() {
+    Reader reader;
+    //читаем объект
+    Object value = reader.Read("resources/models/tetrahedron.obj");
+    //запихиваем его в список объектов
+    objects.insert(objects.begin(), value);
+
     sf::RenderWindow window(
-     sf::VideoMode({WIDTH, HEIGHT}),
+    sf::VideoMode({WIDTH, HEIGHT}),
      "SFML + ImGui"
  );
     render::Framebuffer fb(WIDTH, HEIGHT);
@@ -25,8 +34,14 @@ void Window::create_Window() {
     window.setFramerateLimit(60);
 
     ImGui::SFML::Init(window);
-
+    //Записываем значения объекта в переменные (просто для удобства. Можно убрать)
     sf::Clock deltaClock;
+    vector<Vector3<float>> faces = objects.at(0).faces;
+    vector<Vector3<float>> verticies = objects.at(0).vertices;
+
+    Vector2 a = {verticies.at(0).x, verticies.at(0).y};
+    Vector2 b = {verticies.at(1).x, verticies.at(1).y};
+    Vector2 c = {verticies.at(2).x, verticies.at(2).y};
 
     while (window.isOpen())
     {
@@ -39,24 +54,8 @@ void Window::create_Window() {
         }
         fb.clear(render::Color::black());
 
-        render::Rasterizer::draw_colored_triangle(
-            fb,
-            {200.f, 100.f},
-            {600.f, 150.f},
-            {400.f, 500.f},
-            render::Color::red(),
-            render::Color::blue(),
-            render::Color::green()
-            );
-        render::Rasterizer::draw_colored_triangle(
-            fb,
-            {250.f, 100.f},
-            {670.f, 250.f},
-            {100.f, 1000.f},
-            render::Color::red(),
-            render::Color::blue(),
-            render::Color::green()
-            );
+        render::Rasterizer::draw_triangle(fb, a, b, c, 255);
+
         ImGui::SFML::Update(window, deltaClock.restart());
         texture.update(fb.get_data());
         window.clear(sf::Color(100, 0, 0));

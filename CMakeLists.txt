@@ -81,6 +81,10 @@ add_executable(KGG_CPP_Project_Repo
         src/app/main.cpp
         src/Window/Framebuffer.cpp
         src/Render/Rasterizer.cpp
+        src/ReadWrite/Object.cpp
+        include/ReadWrite/Object.h
+        src/ReadWrite/Reader.cpp
+        include/ReadWrite/Reader.h
 )
 
 target_include_directories(KGG_CPP_Project_Repo
