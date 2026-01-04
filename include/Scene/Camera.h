@@ -9,7 +9,13 @@
 
 class Camera {
     public:
-    static gmath::Vector3d look_direction_vector(gmath::Vector3d target, gmath::Vector3d eye);
+    // static gmath::Vector3d look_direction_vector(gmath::Vector3d target, gmath::Vector3d eye);
+        Camera();
+        ~Camera() = default;
+    private:
+        gmath::Vector3d eye;
+        gmath::Vector3d target;
+        gmath::Vector3d up;
 };
 
 
