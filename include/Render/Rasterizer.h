@@ -8,7 +8,7 @@
 #include "Render.h"
 #include "Math/Vector2.hpp"
 #include "Math/Vector3.hpp"
-#include "Scene/Object.hpp"
+#include "../ReadWrite/Object.hpp"
 #include "SFML/Graphics/Color.hpp"
 #include "Window/Framebuffer.h"
 

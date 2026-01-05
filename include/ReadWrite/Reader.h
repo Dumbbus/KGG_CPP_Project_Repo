@@ -1,7 +1,7 @@
 #include <Math/Vector3.hpp>
 #include <Math/Matrix3.hpp>
 #include <Light/Normal.hpp>
-#include <ReadWrite/Object.h>
+#include <ReadWrite/Object.hpp>
 
 
 #ifndef KGG_CPP_PROJECT_REPO_READER_H

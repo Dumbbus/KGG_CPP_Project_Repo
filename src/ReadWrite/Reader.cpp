@@ -6,9 +6,11 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <ReadWrite/Object.hpp>
 using namespace std;
 
     Object Reader::Read(const std::string filename) {
+        Vertex vertex;
         Object object3d;
         ifstream file(filename);
         string line;
@@ -21,12 +23,17 @@ using namespace std;
                 case 'v':
                     float x, y, z;
                     iss >> x >> y >> z;
-                    object3d.vertices.emplace_back(x, y, z);
+                    vertex = {{x, y, z}, {0, 0, 1}};
+                    object3d.mesh.m_vertices.push_back(vertex);
                     break;
                 case 'f':
                     int v1, v2, v3;
                     iss >> v1 >> v2 >> v3;
-                    object3d.faces.emplace_back(v1 - 1, v2 - 1, v3 - 1);
+                    //object3d.mesh.m_indices.push_back({v1-1, v2-1, v3-1}); если заменишь на вектор, то это
+                    //раскоментировать и доделать чтобы передавался вектор Vector3 с этими значениями
+                    object3d.mesh.m_indices.push_back(v1-1);
+                    object3d.mesh.m_indices.push_back(v2-1);
+                    object3d.mesh.m_indices.push_back(v3-1);
                     break;
             }
 

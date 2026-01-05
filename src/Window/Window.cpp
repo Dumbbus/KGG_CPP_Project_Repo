@@ -1,11 +1,13 @@
 #include "Window/Window.hpp"
+
+#include <iostream>
 #include <SFML/Graphics.hpp>
 #include "imgui-SFML.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "ImGuiFileDialog.h"
-#include "ReadWrite/Object.h"
+#include "ReadWrite/Object.hpp"
 #include "ReadWrite/Reader.h"
 #include "Render/Rasterizer.h"
 #include "Window/Framebuffer.h"
@@ -15,12 +17,15 @@
 #include "Render/Mesh.hpp"
 #include "Render/Render.h"
 #include "Scene/Scene.h"
+using namespace std;
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
 bool opened = true;
 bool* openedd = &opened;
 vector<Scene*> scenes;//Vector of pointers to scenes
 Reader reader;
+Viewport viewport{(double) HEIGHT, (double) WIDTH};
+Render renderer;
 
 void style() {
     ImVec4* colors = ImGui::GetStyle().Colors;
@@ -83,57 +88,23 @@ colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
 void Window::create_Window() {
-    scenes.push_back(new Scene());
-
+    Camera camera({0, 0, 0}, {0, 0, -5}, {0, 1, 0});
+    Projection projection(90.0, (double) WIDTH / HEIGHT, 0.1, 100.0);
+    //здесь создаётся сцена, в будующем можно создать ещё
+    scenes.push_back(new Scene(camera, projection));
 
     sf::RenderWindow window(
     sf::VideoMode({WIDTH, HEIGHT}), "3dViewer");
-    render::Framebuffer fb(WIDTH, HEIGHT);
+    Framebuffer fb(WIDTH, HEIGHT);
     sf::Texture texture(sf::Vector2u(WIDTH, HEIGHT));
     sf::Sprite sprite(texture);
 
-    // Вершины пирамиды (x, y, z)
-    std::vector<gmath::Vector3<double>> pyramid_vertices = {
-        { 0.0,  1.0,  0.0}, // 0: Верхушка
-        {-1.0, -1.0,  1.0}, // 1: Левый передний угол основания
-        { 1.0, -1.0,  1.0}, // 2: Правый передний угол основания
-        { 0.0, -1.0, -1.0}  // 3: Задний угол основания
-    };
-
-    // Нормали (можно оставить нулевыми или упрощенными)
-    std::vector<gmath::Vector3<double>> pyramid_normals(4, {0, 0, 1});
-
-    // Индексы граней (порядок вершин важен для правильной ориентации сторон)
-    std::vector<int> pyramid_indices = {
-        0, 1, 2, // Передняя грань
-        0, 2, 3, // Правая грань
-        0, 3, 1, // Левая грань
-        1, 3, 2  // Основание
-    };
-
-    // Создаем куб или простой треугольник
-    Mesh pyramide_mesh(pyramid_vertices, pyramid_normals, pyramid_indices);
-
-    render::Object pyramide_obj(pyramide_mesh);
-    pyramide_obj.transform.set_position({0, 0, -3});
-
-    Camera camera({0, 0, 0}, {0, 0, -5}, {0, 1, 0});
-    Projection projection(90.0, (double) WIDTH / HEIGHT, 0.1, 100.0);
-    Viewport viewport{(double) HEIGHT, (double) WIDTH};
-    Render renderer;
-
     window.setFramerateLimit(60);
+
 
     ImGui::SFML::Init(window);//
     //Записываем значения объекта в переменные (просто для удобства. Можно убрать)
     sf::Clock deltaClock;
-    vector<Vector3<float>> faces;
-    vector<Vector3<float>> verticies;
-    Vector2<float> a;
-    Vector2<float> b;
-    Vector2<float> c;
-    Vector2<float> d;
-    vector<Vector2<float>> vec;
 
     while (window.isOpen()) {
         while (auto event = window.pollEvent()) {
@@ -141,22 +112,19 @@ void Window::create_Window() {
             if (event->is<sf::Event::Closed>())
                 window.close();
         }
-        pyramide_obj.transform.rotate({0, 0.01, 0});
 
-        fb.clear(render::Color::black());
+        fb.clear(Color::black());
         fb.clear_depth(1.0f);
-
-        render::Rasterizer::draw_shape(fb, pyramide_obj, renderer, camera, projection, viewport);
-
+        if (scenes.at(0)->objects3d.size() != 0) {
+            scenes.at(0)->objects3d.at(0).transform.rotate({0, 0.01, 0.01});
+            Rasterizer::draw_shape(fb, scenes.at(0)->objects3d.at(0), renderer, scenes.at(0)->camera, scenes.at(0)->projection, viewport);
+        }
         ImGui::SFML::Update(window, deltaClock.restart());
 
         texture.update(fb.get_data());
         window.clear(sf::Color(100, 0, 0));
         window.draw(sprite);
-        ImGui::Begin("Hello");
-        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        //ImGui::Image(texture);
-        ImGui::End();
+
 
         //Imgui
         style();
@@ -185,6 +153,7 @@ void Window::create_Window() {
                 }
                 ImGui::EndMenu();
             }
+            ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
             ImGui::EndMainMenuBar();
         }
         //Menu end
@@ -198,14 +167,8 @@ void Window::create_Window() {
                 std::string filePath = ImGuiFileDialog::Instance()->GetFilePathName();
                 // vec.at(n)->val == (*vec.at(n)).val
                 scenes.at(0)->addObject3d(reader.Read(filePath));
-                Object obj = scenes.at(0)->objects3d.at(0);
-                faces = obj.faces;
-                verticies = obj.vertices;
-                a = {verticies.at(0).x, verticies.at(0).y};
-                b = {verticies.at(1).x, verticies.at(1).y};
-                c = {verticies.at(2).x, verticies.at(2).y};
-                d = {verticies.at(3).x-10, verticies.at(3).y};
-                vec = {a, b, c, d};
+                scenes.at(0)->objects3d.at(0).transform.set_position({0, 0, -3});
+
             }
             ImGuiFileDialog::Instance()->Close();
         }

@@ -3,16 +3,15 @@
 
 #include "Render/Mesh.hpp"
 #include "Scene/Transform.h"
+#include "Window/Framebuffer.h"
 
-namespace render {
+using namespace render;
     class Object {
     public:
         Mesh mesh;
         Transform transform;
-
+        Object() = default;
         Object(const Mesh& m) : mesh(m) {}
-        Object(const Mesh& m, const Transform& t) : mesh(m), transform(t) {}
-    };
-}
+        Object(const Mesh& m, const Transform& t) : mesh(m), transform(t) {}};
 
 #endif
