@@ -37,6 +37,21 @@ add_library(imgui STATIC
         ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
 )
+FetchContent_Declare(
+        ImGuiFileDialog
+        GIT_REPOSITORY https://github.com/aiekick/ImGuiFileDialog
+        GIT_TAG master
+)
+FetchContent_MakeAvailable(ImGuiFileDialog)
+add_library(imguifiledialog_lib STATIC
+        ${ImGuiFileDialog_SOURCE_DIR}/ImGuiFileDialog.cpp
+)
+target_include_directories(imguifiledialog_lib PUBLIC
+        ${ImGuiFileDialog_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}   # This is crucial for finding imgui.h
+)
+
+
 
 target_include_directories(imgui PUBLIC
         ${imgui_SOURCE_DIR}
@@ -93,11 +108,12 @@ target_include_directories(KGG_CPP_Project_Repo
 )
 target_link_libraries(KGG_CPP_Project_Repo
         PRIVATE
-        imgui
         glfw
         OpenGL::GL
         SFML::Graphics
+        imgui
         ImGui-SFML::ImGui-SFML
+        imguifiledialog_lib
 )
 # ---------- Tests ----------
 enable_testing()
