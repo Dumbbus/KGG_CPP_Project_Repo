@@ -100,6 +100,8 @@ add_executable(KGG_CPP_Project_Repo
         include/ReadWrite/Object.h
         src/ReadWrite/Reader.cpp
         include/ReadWrite/Reader.h
+        src/Scene/Scene.cpp
+        include/Scene/Scene.h
 )
 
 target_include_directories(KGG_CPP_Project_Repo

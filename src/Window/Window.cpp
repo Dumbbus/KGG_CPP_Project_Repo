@@ -9,17 +9,13 @@
 #include "ReadWrite/Reader.h"
 #include "Render/Rasterizer.h"
 #include "Window/Framebuffer.h"
+#include "Scene/Scene.h"
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
 bool opened = true;
 bool* openedd = &opened;
-std::vector<Object> objects3d;
+vector<Scene*> scenes;//Vector of pointers to scenes
 Reader reader;
-Object object3d;
-
-
-
-
 
 void style() {
     ImVec4* colors = ImGui::GetStyle().Colors;
@@ -81,21 +77,9 @@ colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 void Window::create_Window() {
+    scenes.push_back(new Scene());
 
-    objects3d.insert(objects3d.begin(), object3d);
 
     sf::RenderWindow window(
     sf::VideoMode({WIDTH, HEIGHT}), "3dViewer");
@@ -155,6 +139,9 @@ void Window::create_Window() {
                         "FileChooser", "File Explorer",
                         ".obj", config);
                 }
+                if (ImGui::MenuItem("Scene", "Alt+S")) {
+
+                }
                 if (ImGui::MenuItem("Save", "Ctrl+S")) {
                 }
                 if (ImGui::MenuItem("Save as..")) {
@@ -172,12 +159,11 @@ void Window::create_Window() {
         if (ImGuiFileDialog::Instance()->Display("FileChooser")) {
             if (ImGuiFileDialog::Instance()->IsOk()) {
                 std::string filePath = ImGuiFileDialog::Instance()->GetFilePathName();
-                object3d = reader.Read(filePath);
-                objects3d.insert(objects3d.begin(), object3d);
-
-
-                faces = objects3d.at(0).faces;
-                verticies = objects3d.at(0).vertices;
+                // vec.at(n)->val == (*vec.at(n)).val
+                scenes.at(0)->addObject3d(reader.Read(filePath));
+                Object obj = scenes.at(0)->objects3d.at(0);
+                faces = obj.faces;
+                verticies = obj.vertices;
                 a = {verticies.at(0).x, verticies.at(0).y};
                 b = {verticies.at(1).x, verticies.at(1).y};
                 c = {verticies.at(2).x, verticies.at(2).y};
