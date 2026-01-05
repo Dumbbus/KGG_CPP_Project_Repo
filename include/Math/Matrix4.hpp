@@ -6,7 +6,7 @@
 
 #include "MConcepts.hpp"
 #include "Vector3.hpp"
-#include "../../src/Math/Vector4.hpp"
+#include "Math/Vector4.hpp"
 #include "SFML/System/Vector3.hpp"
 
 namespace gmath {
@@ -105,6 +105,17 @@ namespace gmath {
             return matrix;
         }
 
+        static Matrix4 perspective(T fov_deg, T aspect, T near, T far) {
+            Matrix4 matrix = edinich();
+            T fov = fov_deg * T(M_PI) / T(180);
+            T tanHalfFov = std::tan(fov / 2);
+            matrix.data[0][0] = 1 / (aspect * tanHalfFov);
+            matrix.data[1][1] = 1 / tanHalfFov;
+            matrix.data[2][2] = -(far + near) / (far - near);
+            matrix.data[2][3] = -1;
+            matrix.data[3][2] = -(2 * far * near) / (far - near);
+        }
+
         /**
          * @brief Доступ к элементу матрицы 
          * @param row Строка 
@@ -113,11 +124,24 @@ namespace gmath {
          */
         const T& operator()(size_t row, size_t col) const {
             if (row >= 4 || col >= 4) {
-                throw std::out_of_range("Out of range");                
+                throw std::out_of_range("Out of range");
             }
             return data[row][col];
-        }                                
-        
+        }
+
+        /**
+         * @brief Доступ к элементу матрицы для записи
+         * @param row Строка
+         * @param col Столбец
+         * @return Элемент
+         */
+        T& operator()(size_t row, size_t col) {
+            if (row >= 4 || col >= 4) {
+                throw std::out_of_range("Out of range");
+            }
+            return data[row][col];
+        }
+
         /**
          * @brief Сложение матриц
          * @param other Матрица для сложения
