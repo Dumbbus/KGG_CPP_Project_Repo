@@ -14,12 +14,12 @@ void Transform::translate(const gmath::Vector3d& delta) {
     m_dirty = true;
 }
 
-void Transform::rotate(const gmath::Vector3d delta_euler) {
+void Transform::rotate(const gmath::Vector3d &delta_euler) {
     m_rotation += delta_euler;
     m_dirty = true;
 }
 
-void Transform::update_martix() const {
+void Transform::update_matrix() const {
     if (!m_dirty) return;
 
     m_model_cache = gmath::Matrix4d::translation(m_position) *
@@ -32,6 +32,6 @@ void Transform::update_martix() const {
 }
 
 gmath::Matrix4d Transform::get_model_matrix() const {
-    update_martix();
+    update_matrix();
     return m_model_cache;
 }

@@ -177,33 +177,21 @@ namespace render {
             std::floor(std::max({a.y, b.y, c.y}))
             );
 
-        const float area = edge(
-            gmath::Vector2(a.x, a.y),
-            gmath::Vector2(b.x, b.y),
-            gmath::Vector2(c.x, c.y));
-        if (area == 0.0f) {
-            return;
-        }
+        // Кэшируем 2D проекции вершин заранее, чтобы не создавать векторы в цикле
+        const gmath::Vector2<float> v0(a.x, a.y);
+        const gmath::Vector2<float> v1(b.x, b.y);
+        const gmath::Vector2<float> v2(c.x, c.y);
+
+        const float area = edge(v0, v1, v2);
+        if (std::abs(area) < 0.00001f) return;
 
         for (int y = min_y; y <= max_y; ++y) {
             for (int x = min_x; x <= max_x; ++x) {
                 gmath::Vector2<float> pixel(x + 0.5f, y + 0.5f);
 
-                float w0 = edge(
-                    gmath::Vector2(b.x, b.y),
-                    gmath::Vector2(c.x, c.y),
-                    gmath::Vector2(pixel.x, pixel.y)
-                    );
-                float w1 = edge(
-                    gmath::Vector2(c.x, c.y),
-                    gmath::Vector2(a.x, a.y),
-                    gmath::Vector2(pixel.x, pixel.y)
-                    );
-                float w2 = edge(
-                    gmath::Vector2(a.x, a.y),
-                    gmath::Vector2(b.x, b.y),
-                    gmath::Vector2(pixel.x, pixel.y)
-                    );
+                float w0 = edge(v1, v2, pixel);
+                float w1 = edge(v2, v0, pixel);
+                float w2 = edge(v0, v1, pixel);
 
                 if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
                     //framebuffer.set_pixel(x, y, color);
@@ -220,6 +208,37 @@ namespace render {
                     framebuffer.set_pixel(x, y, result, z);
                 }
             }
+        }
+    }
+
+    void Rasterizer::draw_shape(
+        Framebuffer &fb,
+        Object &obj,
+        Render &renderer,
+        Camera &camera,
+        Projection &projection,
+        const Viewport &viewport
+    ) {
+        auto screen_coords = renderer.process_mesh(obj.mesh, obj.transform, camera, projection, viewport);
+
+        draw_scene(obj.mesh, screen_coords, fb);
+    }
+
+    void Rasterizer::draw_scene(const Mesh& mesh, const std::vector<gmath::Vector3d>& screen_coords, Framebuffer& fb) {
+        // Проходим по индексам меша (по 3 за раз)
+        for (size_t i = 0; i < mesh.m_indices.size(); i += 3) {
+            int i0 = mesh.m_indices[i];
+            int i1 = mesh.m_indices[i+1];
+            int i2 = mesh.m_indices[i+2];
+
+            // Получаем экранные Vector3 (x, y — пиксели, z — глубина для z-буфера)
+            // Приводим double к float для растеризатора
+            gmath::Vector3f v0 = {(float)screen_coords[i0].x, (float)screen_coords[i0].y, (float)screen_coords[i0].z};
+            gmath::Vector3f v1 = {(float)screen_coords[i1].x, (float)screen_coords[i1].y, (float)screen_coords[i1].z};
+            gmath::Vector3f v2 = {(float)screen_coords[i2].x, (float)screen_coords[i2].y, (float)screen_coords[i2].z};
+
+            // Вызываем ваш растеризатор
+            draw_colored_triangle(fb, v0, v1, v2, Color::white(), Color::white(), Color::white());
         }
     }
 }

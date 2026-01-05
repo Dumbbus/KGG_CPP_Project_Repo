@@ -106,14 +106,17 @@ namespace gmath {
         }
 
         static Matrix4 perspective(T fov_deg, T aspect, T near, T far) {
-            Matrix4 matrix = edinich();
+            Matrix4 matrix = zero();
             T fov = fov_deg * T(M_PI) / T(180);
             T tanHalfFov = std::tan(fov / 2);
+
             matrix.data[0][0] = 1 / (aspect * tanHalfFov);
             matrix.data[1][1] = 1 / tanHalfFov;
             matrix.data[2][2] = -(far + near) / (far - near);
-            matrix.data[2][3] = -1;
-            matrix.data[3][2] = -(2 * far * near) / (far - near);
+            matrix.data[2][3] = -(2 * far * near) / (far - near);
+            matrix.data[3][2] = -1;
+
+            return matrix;
         }
 
         /**

@@ -8,12 +8,12 @@
 
 class Projection {
     public:
-        Projection(fov, aspect_ratio, near_plane, far_plane)
+        Projection(double fov, double aspect_ratio, double near_plane, double far_plane)
             : m_fov(fov), m_aspect_ratio(aspect_ratio),
             m_near_plane(near_plane), m_far_plane(far_plane) {}
         ~Projection() = default;
 
-        gmath::Matrix4d get_projection_matrix();
+        gmath::Matrix4d get_projection_matrix() const;
 
         void set_fov(double fov) { m_fov = fov; }
         void set_aspect_ratio(double ratio) { m_aspect_ratio = ratio; }

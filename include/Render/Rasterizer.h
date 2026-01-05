@@ -4,8 +4,11 @@
 
 #ifndef KGG_CPP_PROJECT_REPO_RASTERIZER_H
 #define KGG_CPP_PROJECT_REPO_RASTERIZER_H
+#include "Mesh.hpp"
+#include "Render.h"
 #include "Math/Vector2.hpp"
 #include "Math/Vector3.hpp"
+#include "Scene/Object.hpp"
 #include "SFML/Graphics/Color.hpp"
 #include "Window/Framebuffer.h"
 
@@ -41,6 +44,17 @@ namespace render {
             const Color& color_b,
             const Color& color_c
         );
+
+        static void draw_shape(
+            Framebuffer &fb,
+            Object &obj,
+            Render &renderer,
+            Camera &camera,
+            Projection &projection,
+            const Viewport &viewport
+        );
+
+        static void draw_scene(const Mesh& mesh, const std::vector<gmath::Vector3d>& screen_coords, Framebuffer& fb);
     };
 }
 

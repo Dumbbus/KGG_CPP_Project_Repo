@@ -5,6 +5,7 @@
 
 #include "Window/Framebuffer.h"
 #include <algorithm>
+#include <cstdint>
 
 namespace render {
     Framebuffer::Framebuffer(uint32_t width, uint32_t height)

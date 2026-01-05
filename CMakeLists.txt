@@ -81,6 +81,8 @@ add_executable(KGG_CPP_Project_Repo
         src/app/main.cpp
         src/Window/Framebuffer.cpp
         src/Render/Rasterizer.cpp
+        src/Scene/Transform.cpp
+        src/Scene/Projection.cpp
 )
 
 target_include_directories(KGG_CPP_Project_Repo

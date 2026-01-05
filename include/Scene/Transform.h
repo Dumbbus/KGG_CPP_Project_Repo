@@ -18,7 +18,7 @@ class Transform {
         void set_scale(const gmath::Vector3d& s) { m_scale = s; m_dirty = true; }
 
         void translate(const gmath::Vector3d& delta);
-        void rotate(const gmath::Vector3d delta_euler);
+        void rotate(const gmath::Vector3d &delta_euler);
 
         gmath::Matrix4d get_model_matrix() const;
 
@@ -30,7 +30,7 @@ class Transform {
         mutable gmath::Matrix4d m_model_cache;
         mutable bool m_dirty; // Для того, нужно ли обновить матрицу
 
-        void update_martix();
+        void update_matrix() const;
 };
 
 #endif //KGG_CPP_PROJECT_REPO_TRANSFORM_H

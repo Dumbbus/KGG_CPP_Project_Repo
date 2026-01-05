@@ -11,9 +11,20 @@
 #include "Scene/Projection.h"
 #include <vector>
 
+struct Viewport {
+    double height;
+    double width;
+};
+
 class Render {
     public:
-
+    static std::vector<gmath::Vector3d> process_mesh(
+                const Mesh& mesh,
+                const Transform& transform,
+                Camera& camera,
+                Projection& projection,
+                const Viewport& viewport
+        );
 };
 
 
