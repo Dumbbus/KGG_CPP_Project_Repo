@@ -12,6 +12,10 @@ struct Vertex {
     gmath::Vector3<double> normal;
 };
 
+// TODO: добавить поле атрибута для цвета? UV-коорды (на потом)
+// TODO: переделать std::vector<int> m_indices в std::vector<std::vector<int>> m_indices
+// m_indices скорее всего назвать всё же m_faces
+// TODO: вопрос триангуляции в случае, когда полигоны != треугольники
 class Mesh {
     public:
         std::vector<Vertex> m_vertices;

@@ -155,6 +155,9 @@ namespace render {
         }
     }
 
+    // TODO: одинаковые фрагменты кода
+    // сделать более универсальным по возможности
+    // хоть это и будут треугольники
     void Rasterizer::draw_colored_triangle(
         Framebuffer& framebuffer,
         const gmath::Vector3<float> a,
@@ -164,18 +167,23 @@ namespace render {
         const Color& color_b,
         const Color& color_c
     ) {
-        const int min_x = static_cast<int>(
+        int min_x = static_cast<int>(
             std::floor(std::min({a.x, b.x, c.x}))
             );
-        const int max_x = static_cast<int>(
+        int max_x = static_cast<int>(
             std::floor(std::max({a.x, b.x, c.x}))
             );
-        const int min_y = static_cast<int>(
+        int min_y = static_cast<int>(
             std::floor(std::min({a.y, b.y, c.y}))
             );
-        const int max_y = static_cast<int>(
+        int max_y = static_cast<int>(
             std::floor(std::max({a.y, b.y, c.y}))
             );
+
+        min_x = std::max(min_x, 0);
+        min_y = std::max(min_y, 0);
+        max_x = std::min(max_x, static_cast<int>(framebuffer.get_width()) - 1);
+        max_y = std::min(max_y, static_cast<int>(framebuffer.get_height()) - 1);
 
         // Кэшируем 2D проекции вершин заранее, чтобы не создавать векторы в цикле
         const gmath::Vector2<float> v0(a.x, a.y);
@@ -211,6 +219,9 @@ namespace render {
         }
     }
 
+    // TODO: избавиться от всех передающихся значениях, сделать меньшюю зависимость
+    // Пусть будет обёрткой для draw_scene (пусть примет
+    // список индексов, экранные координаты и фреймбуффер)
     void Rasterizer::draw_shape(
         Framebuffer &fb,
         Object &obj,
@@ -224,6 +235,9 @@ namespace render {
         draw_scene(obj.mesh, screen_coords, fb);
     }
 
+
+    // TODO: меньше зависимости => избавиться от Mesh
+    // Сделать метод приватным, над ним пусть будет обёртка draw_shape
     void Rasterizer::draw_scene(const Mesh& mesh, const std::vector<gmath::Vector3d>& screen_coords, Framebuffer& fb) {
         // Проходим по индексам меша (по 3 за раз)
         for (size_t i = 0; i < mesh.m_indices.size(); i += 3) {
@@ -237,7 +251,6 @@ namespace render {
             gmath::Vector3f v1 = {(float)screen_coords[i1].x, (float)screen_coords[i1].y, (float)screen_coords[i1].z};
             gmath::Vector3f v2 = {(float)screen_coords[i2].x, (float)screen_coords[i2].y, (float)screen_coords[i2].z};
 
-            // Вызываем ваш растеризатор
             draw_colored_triangle(fb, v0, v1, v2, Color::white(), Color::white(), Color::white());
         }
     }

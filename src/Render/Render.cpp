@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+// TODO: устранить сильную связность с объектами классов
 std::vector<gmath::Vector3d> Render::process_mesh(
     const Mesh &mesh,
     const Transform &transform,

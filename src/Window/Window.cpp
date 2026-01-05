@@ -88,8 +88,9 @@ colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
 void Window::create_Window() {
-    Camera camera({0, 0, 0}, {0, 0, -5}, {0, 1, 0});
-    Projection projection(90.0, (double) WIDTH / HEIGHT, 0.1, 100.0);
+    Camera camera({0, 0, 0}, {0, 0, -7}, {0, 1, 0});
+    // При понижении fov начинается весёлый карусель пыток проца
+    Projection projection(90.0, (double) WIDTH / HEIGHT, 0.1, 50.0);
     //здесь создаётся сцена, в будующем можно создать ещё
     scenes.push_back(new Scene(camera, projection));
 
@@ -98,6 +99,7 @@ void Window::create_Window() {
     Framebuffer fb(WIDTH, HEIGHT);
     sf::Texture texture(sf::Vector2u(WIDTH, HEIGHT));
     sf::Sprite sprite(texture);
+    Rasterizer rasterizer;
 
     window.setFramerateLimit(60);
 
@@ -117,7 +119,8 @@ void Window::create_Window() {
         fb.clear_depth(1.0f);
         if (scenes.at(0)->objects3d.size() != 0) {
             scenes.at(0)->objects3d.at(0).transform.rotate({0, 0.01, 0.01});
-            Rasterizer::draw_shape(fb, scenes.at(0)->objects3d.at(0), renderer, scenes.at(0)->camera, scenes.at(0)->projection, viewport);
+            // TODO: создание фигуры, пусть создание screen coords будет в window.cpp, сюда же передавать только x, y
+            rasterizer.draw_shape(fb, scenes.at(0)->objects3d.at(0), renderer, scenes.at(0)->camera, scenes.at(0)->projection, viewport);
         }
         ImGui::SFML::Update(window, deltaClock.restart());
 
