@@ -5,7 +5,9 @@
 #include <stdexcept>
 
 #include "MConcepts.hpp"
-#include "../../src/Math/Vector4.hpp"
+#include "Vector3.hpp"
+#include "Math/Vector4.hpp"
+#include "SFML/System/Vector3.hpp"
 
 namespace gmath {
 
@@ -52,8 +54,71 @@ namespace gmath {
          */
         static Matrix4 zero() {
             return Matrix4();
-        }        
-                
+        }
+
+        static Matrix4 translation(const Vector3<T>& vec) {
+            Matrix4 matrix = edinich();
+            matrix.data[0][3] = vec.x;
+            matrix.data[1][3] = vec.y;
+            matrix.data[2][3] = vec.z;
+            return matrix;
+        }
+
+        static Matrix4 scale(const Vector3<T>& vec) {
+            Matrix4 matrix = edinich();
+            matrix.data[0][0] = vec.x;
+            matrix.data[1][1] = vec.y;
+            matrix.data[2][2] = vec.z;
+            return matrix;
+        }
+
+        static Matrix4 rotation_x(T angle) {
+            Matrix4 matrix = edinich();
+            T cos = std::cos(angle);
+            T sin = std::sin(angle);
+            matrix.data[1][1] = cos;
+            matrix.data[1][2] = -sin;
+            matrix.data[2][1] = sin;
+            matrix.data[2][2] = cos;
+            return matrix;
+        }
+
+        static Matrix4 rotation_y(T angle) {
+            Matrix4 matrix = edinich();
+            T cos = std::cos(angle);
+            T sin = std::sin(angle);
+            matrix.data[0][0] = cos;
+            matrix.data[0][2] = sin;
+            matrix.data[2][0] = -sin;
+            matrix.data[2][2] = cos;
+            return matrix;
+        }
+
+        static Matrix4 rotation_z(T angle) {
+            Matrix4 matrix = edinich();
+            T cos = std::cos(angle);
+            T sin = std::sin(angle);
+            matrix.data[0][0] = cos;
+            matrix.data[0][1] = -sin;
+            matrix.data[1][0] = sin;
+            matrix.data[1][1] = cos;
+            return matrix;
+        }
+
+        static Matrix4 perspective(T fov_deg, T aspect, T near, T far) {
+            Matrix4 matrix = zero();
+            T fov = fov_deg * T(M_PI) / T(180);
+            T tanHalfFov = std::tan(fov / 2);
+
+            matrix.data[0][0] = 1 / (aspect * tanHalfFov);
+            matrix.data[1][1] = 1 / tanHalfFov;
+            matrix.data[2][2] = -(far + near) / (far - near);
+            matrix.data[2][3] = -(2 * far * near) / (far - near);
+            matrix.data[3][2] = -1;
+
+            return matrix;
+        }
+
         /**
          * @brief Доступ к элементу матрицы 
          * @param row Строка 
@@ -62,11 +127,24 @@ namespace gmath {
          */
         const T& operator()(size_t row, size_t col) const {
             if (row >= 4 || col >= 4) {
-                throw std::out_of_range("Out of range");                
+                throw std::out_of_range("Out of range");
             }
             return data[row][col];
-        }                                
-        
+        }
+
+        /**
+         * @brief Доступ к элементу матрицы для записи
+         * @param row Строка
+         * @param col Столбец
+         * @return Элемент
+         */
+        T& operator()(size_t row, size_t col) {
+            if (row >= 4 || col >= 4) {
+                throw std::out_of_range("Out of range");
+            }
+            return data[row][col];
+        }
+
         /**
          * @brief Сложение матриц
          * @param other Матрица для сложения

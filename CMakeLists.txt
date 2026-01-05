@@ -96,6 +96,8 @@ add_executable(KGG_CPP_Project_Repo
         src/app/main.cpp
         src/Window/Framebuffer.cpp
         src/Render/Rasterizer.cpp
+        src/Scene/Transform.cpp
+        src/Scene/Projection.cpp
         src/ReadWrite/Object.cpp
         include/ReadWrite/Object.h
         src/ReadWrite/Reader.cpp
