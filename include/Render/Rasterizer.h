@@ -33,8 +33,6 @@ namespace render {
         const Color& color_c
         );
 
-        // Отличие в типе вершины. Здесь вершина уже с 3-мя координатами
-        // Где применяется наконец-то z-buffer
         void draw_colored_triangle(
             Framebuffer& framebuffer,
             const gmath::Vector3<float> a,
@@ -45,26 +43,20 @@ namespace render {
             const Color& color_c
         );
 
-
-        // void draw_shape(
-        //     Framebuffer &fb,
-        //     Object &obj,
-        //     Render &renderer,
-        //     Camera &camera,
-        //     Projection &projection,
-        //     const Viewport &viewport
-        // );
-
         void draw_shape(
             Framebuffer &fb,
-            Object &obj,
-            Render &renderer,
-            Camera &camera,
-            Projection &projection,
-            const Viewport &viewport
+            const std::vector<gmath::Vector3d>& screen_coords,
+            const std::vector<std::vector<int>>& faces,
+            const Color& color
         );
 
-        void draw_scene(const Mesh& mesh, const std::vector<gmath::Vector3d>& screen_coords, Framebuffer& fb);
+    private:
+        void draw_scene(
+            const std::vector<std::vector<int>>& faces,
+            const std::vector<gmath::Vector3d>& screen_coords,
+            Framebuffer& fb,
+            const Color& color
+        );
     };
 }
 
