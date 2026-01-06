@@ -64,7 +64,20 @@ namespace render {
             const Viewport &viewport
         );
 
+        void draw_shape(
+            Framebuffer &fb,
+            const std::vector<gmath::Vector3d>& screen_coords,
+            const std::vector<std::vector<int>>& faces
+        );
+
         void draw_scene(const Mesh& mesh, const std::vector<gmath::Vector3d>& screen_coords, Framebuffer& fb);
+
+    private:
+        void draw_scene(
+            const std::vector<std::vector<int>>& faces,
+            const std::vector<gmath::Vector3d>& screen_coords,
+            Framebuffer& fb
+        );
     };
 }
 

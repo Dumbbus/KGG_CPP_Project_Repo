@@ -25,6 +25,15 @@ class Render {
                 Projection& projection,
                 const Viewport& viewport
         );
+
+    std::vector<gmath::Vector3d> process_mesh(
+        const std::vector<gmath::Vector3d> &vertices,
+        const gmath::Matrix4d &transform_martix,
+        const gmath::Matrix4d &projection_martix,
+        const gmath::Matrix4d &view_martix,
+        double width,
+        double height
+    );
 };
 
 

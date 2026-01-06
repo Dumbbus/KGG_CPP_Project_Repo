@@ -47,114 +47,6 @@ namespace render {
         );
     }
 
-    /**
-     * Отрисовка треугольников с помощью условия на нахождение внутри треугольника
-     * В который вписан соответствующие координаты
-     *
-     * @param framebuffer
-     * @param a
-     * @param b
-     * @param c
-     * @param color
-     */
-    void Rasterizer::draw_triangle(
-        Framebuffer &framebuffer,
-        const gmath::Vector2<float> a,
-        const gmath::Vector2<float> b,
-        const gmath::Vector2<float> c,
-        const Color &color
-        ) {
-        // 1. Bounding box
-        // Получим "квадрат", в которую полностью вписан треугольник
-        const int min_x = static_cast<int>(
-            std::floor(std::min({a.x, b.x, c.x}))
-            );
-        const int max_x = static_cast<int>(
-            std::floor(std::max({a.x, b.x, c.x}))
-            );
-        const int min_y = static_cast<int>(
-            std::floor(std::min({a.y, b.y, c.y}))
-            );
-        const int max_y = static_cast<int>(
-            std::floor(std::max({a.y, b.y, c.y}))
-            );
-
-        // 2. Предварительная ориентация
-        const float area = edge(a, b, c);
-        if (area == 0.0f) {
-            return;
-        }
-
-        // 3. Отрисовка треуголька
-        for (int y = min_y; y <= max_y; ++y) {
-            for (int x = min_x; x <= max_x; ++x) {
-                gmath::Vector2<float> pixel(
-                    x + 0.5f,
-                    y + 0.5f
-                );
-
-                float w0 = edge(b, c, pixel);
-                float w1 = edge(c, a, pixel);
-                float w2 = edge(a, b, pixel);
-
-                if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
-                    framebuffer.set_pixel(x, y, color, 1.0f);
-                }
-            }
-        }
-    }
-
-    void Rasterizer::draw_colored_triangle(
-        Framebuffer& framebuffer,
-        const gmath::Vector2<float> a,
-        const gmath::Vector2<float> b,
-        const gmath::Vector2<float> c,
-        const Color& color_a,
-        const Color& color_b,
-        const Color& color_c
-    ) {
-        const int min_x = static_cast<int>(
-            std::floor(std::min({a.x, b.x, c.x}))
-            );
-        const int max_x = static_cast<int>(
-            std::floor(std::max({a.x, b.x, c.x}))
-            );
-        const int min_y = static_cast<int>(
-            std::floor(std::min({a.y, b.y, c.y}))
-            );
-        const int max_y = static_cast<int>(
-            std::floor(std::max({a.y, b.y, c.y}))
-            );
-
-        const float area = edge(a, b, c);
-        if (area == 0.0f) {
-            return;
-        }
-
-        for (int y = min_y; y <= max_y; ++y) {
-            for (int x = min_x; x <= max_x; ++x) {
-                gmath::Vector2<float> pixel(x + 0.5f, y + 0.5f);
-
-                float w0 = edge(b, c, pixel);
-                float w1 = edge(c, a, pixel);
-                float w2 = edge(a, b, pixel);
-
-                if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
-                    //framebuffer.set_pixel(x, y, color);
-                    float alpha = w0 / area;
-                    float beta = w1 / area;
-                    float gamma = w2 / area;
-
-                    Color result = interpolate_color(
-                        alpha, beta, gamma,
-                        color_a, color_b, color_c
-                        );
-                    framebuffer.set_pixel(x, y, result, 1.0f);
-                }
-            }
-        }
-    }
-
     // TODO: одинаковые фрагменты кода
     // сделать более универсальным по возможности
     // хоть это и будут треугольники
@@ -235,6 +127,31 @@ namespace render {
         draw_scene(obj.mesh, screen_coords, fb);
     }
 
+    void Rasterizer::draw_shape(
+        Framebuffer &fb,
+        const std::vector<gmath::Vector3d>& screen_coords,
+        const std::vector<std::vector<int>>& faces
+    ) {
+        draw_scene(faces, screen_coords, fb);
+    }
+
+    void Rasterizer::draw_scene(
+        const std::vector<std::vector<int>>& faces,
+        const std::vector<gmath::Vector3d>& screen_coords,
+        Framebuffer& fb
+    ) {
+        for (std::vector<int> face : faces) {
+            int index_0 = face[0];
+            int index_1 = face[1];
+            int index_2 = face[2];
+
+            gmath::Vector3f v0 = {(float)screen_coords[index_0].x, (float)screen_coords[index_0].y, (float)screen_coords[index_0].z};
+            gmath::Vector3f v1 = {(float)screen_coords[index_1].x, (float)screen_coords[index_1].y, (float)screen_coords[index_1].z};
+            gmath::Vector3f v2 = {(float)screen_coords[index_2].x, (float)screen_coords[index_2].y, (float)screen_coords[index_2].z};
+
+            draw_colored_triangle(fb, v0, v1, v2, Color::white(), Color::white(), Color::white());
+        }
+    }
 
     // TODO: меньше зависимости => избавиться от Mesh
     // Сделать метод приватным, над ним пусть будет обёртка draw_shape
@@ -245,8 +162,6 @@ namespace render {
             int i1 = mesh.m_indices[i+1];
             int i2 = mesh.m_indices[i+2];
 
-            // Получаем экранные Vector3 (x, y — пиксели, z — глубина для z-буфера)
-            // Приводим double к float для растеризатора
             gmath::Vector3f v0 = {(float)screen_coords[i0].x, (float)screen_coords[i0].y, (float)screen_coords[i0].z};
             gmath::Vector3f v1 = {(float)screen_coords[i1].x, (float)screen_coords[i1].y, (float)screen_coords[i1].z};
             gmath::Vector3f v2 = {(float)screen_coords[i2].x, (float)screen_coords[i2].y, (float)screen_coords[i2].z};
