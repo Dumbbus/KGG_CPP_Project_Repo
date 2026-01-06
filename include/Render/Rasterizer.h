@@ -15,7 +15,7 @@
 namespace render {
     class Rasterizer {
     public:
-        static void draw_triangle(
+        void draw_triangle(
             Framebuffer& framebuffer,
             const gmath::Vector2<float> a,
             const gmath::Vector2<float> b,
@@ -23,7 +23,7 @@ namespace render {
             const Color& color
         );
 
-        static void draw_colored_triangle(
+        void draw_colored_triangle(
         Framebuffer& framebuffer,
         const gmath::Vector2<float> a,
         const gmath::Vector2<float> b,
@@ -33,9 +33,7 @@ namespace render {
         const Color& color_c
         );
 
-        // Отличие в типе вершины. Здесь вершина уже с 3-мя координатами
-        // Где применяется наконец-то z-buffer
-        static void draw_colored_triangle(
+        void draw_colored_triangle(
             Framebuffer& framebuffer,
             const gmath::Vector3<float> a,
             const gmath::Vector3<float> b,
@@ -45,16 +43,20 @@ namespace render {
             const Color& color_c
         );
 
-        static void draw_shape(
+        void draw_shape(
             Framebuffer &fb,
-            Object &obj,
-            Render &renderer,
-            Camera &camera,
-            Projection &projection,
-            const Viewport &viewport
+            const std::vector<gmath::Vector3d>& screen_coords,
+            const std::vector<std::vector<int>>& faces,
+            const Color& color
         );
 
-        static void draw_scene(const Mesh& mesh, const std::vector<gmath::Vector3d>& screen_coords, Framebuffer& fb);
+    private:
+        void draw_scene(
+            const std::vector<std::vector<int>>& faces,
+            const std::vector<gmath::Vector3d>& screen_coords,
+            Framebuffer& fb,
+            const Color& color
+        );
     };
 }
 
