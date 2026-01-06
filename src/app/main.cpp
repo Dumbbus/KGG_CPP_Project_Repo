@@ -5,5 +5,6 @@
 #include "Window/Window.hpp"
 
 int main() {
-    Window::create_Window();
+    Window window;
+    window.create_Window();
 }

@@ -26,6 +26,9 @@ vector<Scene*> scenes;//Vector of pointers to scenes
 Reader reader;
 Viewport viewport{(double) HEIGHT, (double) WIDTH};
 Render renderer;
+int chosen_scene = 0;
+int chosen_object = 0;
+gmath::Vector3<double> kfkd = {0, 0, -4};
 
 void style() {
     ImVec4* colors = ImGui::GetStyle().Colors;
@@ -98,11 +101,10 @@ void Window::create_Window() {
     Framebuffer fb(WIDTH, HEIGHT);
     sf::Texture texture(sf::Vector2u(WIDTH, HEIGHT));
     sf::Sprite sprite(texture);
-
     window.setFramerateLimit(60);
 
 
-    ImGui::SFML::Init(window);//
+    ImGui::SFML::Init(window);
     //Записываем значения объекта в переменные (просто для удобства. Можно убрать)
     sf::Clock deltaClock;
 
@@ -113,17 +115,23 @@ void Window::create_Window() {
                 window.close();
         }
 
+        //clear
         fb.clear(Color::black());
         fb.clear_depth(1.0f);
-        if (scenes.at(0)->objects3d.size() != 0) {
-            scenes.at(0)->objects3d.at(0).transform.rotate({0, 0.01, 0.01});
-            Rasterizer::draw_shape(fb, scenes.at(0)->objects3d.at(0), renderer, scenes.at(0)->camera, scenes.at(0)->projection, viewport);
+        //
+
+        //scene drawing
+        if (scenes.at(chosen_scene)->objects3d.size() != 0) {
+            for (Object& object : scenes.at(chosen_scene)->objects3d) {
+                object.transform.rotate({0, -0.01, -0.01});
+
+                Rasterizer::draw_shape(fb, object,
+                    renderer, scenes.at(0)->camera,
+                    scenes.at(0)->projection, viewport);
+            }
         }
         ImGui::SFML::Update(window, deltaClock.restart());
-
-        texture.update(fb.get_data());
-        window.clear(sf::Color(100, 0, 0));
-        window.draw(sprite);
+        //
 
 
         //Imgui
@@ -166,14 +174,20 @@ void Window::create_Window() {
             if (ImGuiFileDialog::Instance()->IsOk()) {
                 std::string filePath = ImGuiFileDialog::Instance()->GetFilePathName();
                 // vec.at(n)->val == (*vec.at(n)).val
-                scenes.at(0)->addObject3d(reader.Read(filePath));
-                scenes.at(0)->objects3d.at(0).transform.set_position({0, 0, -3});
-
+                scenes.at(chosen_scene)->addObject3d(reader.Read(filePath));
+                scenes.at(chosen_scene)->objects3d.back().transform.set_position(kfkd);
+                scenes.at(chosen_scene)->objects3d.back().transform.rotate({0, -0.1, -0.1});
+                kfkd.x--;
+                kfkd.y--;
+                kfkd.z--;
             }
             ImGuiFileDialog::Instance()->Close();
         }
 
         //Render
+        texture.update(fb.get_data());
+        window.clear(sf::Color(100, 0, 0));
+        window.draw(sprite);
         ImGui::SFML::Render(window);
         window.display();
     }

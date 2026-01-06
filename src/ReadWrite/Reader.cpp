@@ -23,7 +23,7 @@ using namespace std;
                 case 'v':
                     float x, y, z;
                     iss >> x >> y >> z;
-                    vertex = {{x, y, z}, {0, 0, 1}};
+                    vertex = {{x, y, z}, {0, 0, 1}  };
                     object3d.mesh.m_vertices.push_back(vertex);
                     break;
                 case 'f':
