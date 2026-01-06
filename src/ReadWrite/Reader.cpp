@@ -31,9 +31,7 @@ using namespace std;
                     iss >> v1 >> v2 >> v3;
                     //object3d.mesh.m_indices.push_back({v1-1, v2-1, v3-1}); если заменишь на вектор, то это
                     //раскоментировать и доделать чтобы передавался вектор Vector3 с этими значениями
-                    object3d.mesh.m_indices.push_back(v1-1);
-                    object3d.mesh.m_indices.push_back(v2-1);
-                    object3d.mesh.m_indices.push_back(v3-1);
+                    object3d.mesh.m_faces.push_back({v1-1, v2-1, v3-1});
                     break;
             }
 

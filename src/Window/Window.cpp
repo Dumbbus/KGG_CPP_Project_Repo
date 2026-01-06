@@ -125,9 +125,11 @@ void Window::create_Window() {
             for (Object& object : scenes.at(chosen_scene)->objects3d) {
                 object.transform.rotate({0, -0.01, -0.01});
 
-                Rasterizer::draw_shape(fb, object,
-                    renderer, scenes.at(0)->camera,
-                    scenes.at(0)->projection, viewport);
+                Rasterizer::draw_shape(fb, Render::process_mesh(object.mesh,
+                    object.transform.get_model_matrix(),
+                    scenes.at(chosen_scene)->projection.get_projection_matrix(),
+                    scenes.at(chosen_scene)->camera.get_view_matrix(), WIDTH, HEIGHT),
+                    object.mesh.m_faces, Color::white());
             }
         }
         ImGui::SFML::Update(window, deltaClock.restart());
