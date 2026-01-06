@@ -111,34 +111,20 @@ namespace render {
         }
     }
 
-    // TODO: избавиться от всех передающихся значениях, сделать меньшюю зависимость
-    // Пусть будет обёрткой для draw_scene (пусть примет
-    // список индексов, экранные координаты и фреймбуффер)
-    void Rasterizer::draw_shape(
-        Framebuffer &fb,
-        Object &obj,
-        Render &renderer,
-        Camera &camera,
-        Projection &projection,
-        const Viewport &viewport
-    ) {
-        auto screen_coords = renderer.process_mesh(obj.mesh, obj.transform, camera, projection, viewport);
-
-        draw_scene(obj.mesh, screen_coords, fb);
-    }
-
     void Rasterizer::draw_shape(
         Framebuffer &fb,
         const std::vector<gmath::Vector3d>& screen_coords,
-        const std::vector<std::vector<int>>& faces
+        const std::vector<std::vector<int>>& faces,
+        const Color& color = Color::white() // По стандарту будет белым
     ) {
-        draw_scene(faces, screen_coords, fb);
+        draw_scene(faces, screen_coords, fb, color);
     }
 
     void Rasterizer::draw_scene(
         const std::vector<std::vector<int>>& faces,
         const std::vector<gmath::Vector3d>& screen_coords,
-        Framebuffer& fb
+        Framebuffer& fb,
+        const Color& color
     ) {
         for (std::vector<int> face : faces) {
             int index_0 = face[0];
@@ -149,24 +135,7 @@ namespace render {
             gmath::Vector3f v1 = {(float)screen_coords[index_1].x, (float)screen_coords[index_1].y, (float)screen_coords[index_1].z};
             gmath::Vector3f v2 = {(float)screen_coords[index_2].x, (float)screen_coords[index_2].y, (float)screen_coords[index_2].z};
 
-            draw_colored_triangle(fb, v0, v1, v2, Color::white(), Color::white(), Color::white());
-        }
-    }
-
-    // TODO: меньше зависимости => избавиться от Mesh
-    // Сделать метод приватным, над ним пусть будет обёртка draw_shape
-    void Rasterizer::draw_scene(const Mesh& mesh, const std::vector<gmath::Vector3d>& screen_coords, Framebuffer& fb) {
-        // Проходим по индексам меша (по 3 за раз)
-        for (size_t i = 0; i < mesh.m_indices.size(); i += 3) {
-            int i0 = mesh.m_indices[i];
-            int i1 = mesh.m_indices[i+1];
-            int i2 = mesh.m_indices[i+2];
-
-            gmath::Vector3f v0 = {(float)screen_coords[i0].x, (float)screen_coords[i0].y, (float)screen_coords[i0].z};
-            gmath::Vector3f v1 = {(float)screen_coords[i1].x, (float)screen_coords[i1].y, (float)screen_coords[i1].z};
-            gmath::Vector3f v2 = {(float)screen_coords[i2].x, (float)screen_coords[i2].y, (float)screen_coords[i2].z};
-
-            draw_colored_triangle(fb, v0, v1, v2, Color::white(), Color::white(), Color::white());
+            draw_colored_triangle(fb, v0, v1, v2, color, color, color);
         }
     }
 }

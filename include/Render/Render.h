@@ -19,14 +19,6 @@ struct Viewport {
 class Render {
     public:
     static std::vector<gmath::Vector3d> process_mesh(
-                const Mesh& mesh,
-                const Transform& transform,
-                Camera& camera,
-                Projection& projection,
-                const Viewport& viewport
-        );
-
-    std::vector<gmath::Vector3d> process_mesh(
         const std::vector<gmath::Vector3d> &vertices,
         const gmath::Matrix4d &transform_martix,
         const gmath::Matrix4d &projection_martix,

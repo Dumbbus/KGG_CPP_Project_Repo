@@ -119,7 +119,16 @@ void Window::create_Window() {
         fb.clear_depth(1.0f);
         if (scenes.at(0)->objects3d.size() != 0) {
             scenes.at(0)->objects3d.at(0).transform.rotate({0, 0.01, 0.01});
-            // TODO: создание фигуры, пусть создание screen coords будет в window.cpp, сюда же передавать только x, y
+            /**
+             * Была переделана в пользу упрощения логика
+             * Как передать параметры теперь правильно
+             * СНАЧАЛА!
+             * Внутри Window.cpp сделать что-то вроде
+             * auto screen_coordinates = Render::process_mesh(<сюда параметры>)
+             * (по передаваемым параметрам смотреть в Render.h)
+             * и сделать rasterizer.draw_shape(<параметры>)
+             * по параметрам тоже смотреть
+            **/
             rasterizer.draw_shape(fb, scenes.at(0)->objects3d.at(0), renderer, scenes.at(0)->camera, scenes.at(0)->projection, viewport);
         }
         ImGui::SFML::Update(window, deltaClock.restart());
