@@ -22,6 +22,14 @@ namespace render {
             a = static_cast<std::uint8_t>(std::clamp(a_f, 0.0, 255.0));
         }
 
+        template<typename T>
+        Color(T r_i, T g_i, T b_i, T a_i = 255) {
+            r = static_cast<std::uint8_t>(static_cast<std::int64_t>(r_i) % 256);
+            g = static_cast<std::uint8_t>(static_cast<std::int64_t>(g_i) % 256);
+            b = static_cast<std::uint8_t>(static_cast<std::int64_t>(b_i) % 256);
+            a = static_cast<std::uint8_t>(static_cast<std::int64_t>(a_i) % 256);
+        }
+
         static constexpr Color black()  { return Color(static_cast<std::uint8_t>(0), 0, 0, 255); }
         static constexpr Color white()  { return Color(static_cast<std::uint8_t>(255), 255, 255, 255); }
         static constexpr Color red()    { return Color(static_cast<std::uint8_t>(255), 0, 0, 255); }

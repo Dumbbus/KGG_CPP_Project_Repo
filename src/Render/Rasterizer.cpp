@@ -126,7 +126,11 @@ namespace render {
         Framebuffer& fb,
         const Color& color
     ) {
+        size_t face_index = 1;
         for (std::vector<int> face : faces) {
+            // TEMPORARY
+            Color face_color(face_index * 45, face_index * 77, face_index * 123);
+
             int index_0 = face[0];
             int index_1 = face[1];
             int index_2 = face[2];
@@ -135,7 +139,8 @@ namespace render {
             gmath::Vector3f v1 = {(float)screen_coords[index_1].x, (float)screen_coords[index_1].y, (float)screen_coords[index_1].z};
             gmath::Vector3f v2 = {(float)screen_coords[index_2].x, (float)screen_coords[index_2].y, (float)screen_coords[index_2].z};
 
-            draw_colored_triangle(fb, v0, v1, v2, color, color, color);
+            draw_colored_triangle(fb, v0, v1, v2, face_color, face_color, face_color);
+            face_index++;
         }
     }
 }
