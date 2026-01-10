@@ -15,6 +15,58 @@ namespace render {
         return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
     }
 
+    // По алгоритму Брезенхема
+    static void draw_3d_line(
+        Framebuffer& fb,
+        const gmath::Vector3<float>& a,
+        const gmath::Vector3<float>& b,
+        const Color& color
+    ) {
+        int x_0 = static_cast<int>(a.x);
+        int y_0 = static_cast<int>(a.y);
+        float z_0 = a.z;
+
+        int x_1 = static_cast<int>(b.x);
+        int y_1 = static_cast<int>(b.y);
+        float z_1 = b.z;
+
+        bool steep = std::abs(y_1 - y_0) > std::abs(x_1 - x_0);
+        if (steep) {
+            std::swap(x_0, y_0);
+            std::swap(x_1, y_1);
+        }
+        if (x_0 > x_1) {
+            std::swap(x_0, x_1);
+            std::swap(y_0, y_1);
+            std::swap(z_0, z_1);
+        }
+
+        int d_x = x_1 - x_0;
+        int d_y = std::abs(y_1 - y_0);
+        int error = d_x / 2;
+        int y_step = (y_0 < y_1) ? 1 : -1;
+        int y = y_0;
+
+        float z_step = (d_x != 0) ? (z_1 - z_0) / static_cast<float>(d_x) : 0.0f;
+        float z = z_0;
+
+        for (int x = x_0; x <= x_1; ++x) {
+            if (steep) {
+                fb.set_pixel(y, x, color, z);
+            } else {
+                fb.set_pixel(x, y, color, z);
+            }
+
+            error -= d_y;
+            if (error < 0) {
+                y += y_step;
+                error += d_x;
+            }
+
+            z += z_step;
+        }
+    }
+
     static Color interpolate_color(
         float alpha,
         float beta,
@@ -141,16 +193,16 @@ namespace render {
         }
     }
 
-    void Rasterizer::draw_shape_lit(
+    void Rasterizer::draw_shape_soft_shadow(
         Framebuffer &fb,
         const std::vector<ProcessedVertex> &processed_vertices,
         const std::vector<std::vector<int> > &faces,
         const Color &base_color
         ) {
-        draw_scene_lit(faces, processed_vertices, fb, base_color);
+        draw_scene_soft_shadow(faces, processed_vertices, fb, base_color);
     }
 
-    void Rasterizer::draw_scene_lit(
+    void Rasterizer::draw_scene_soft_shadow(
         const std::vector<std::vector<int>> &faces,
         const std::vector<ProcessedVertex> &processed_vertices,
         Framebuffer &fb,
@@ -192,5 +244,36 @@ namespace render {
 
             draw_colored_triangle(fb, v0, v1, v2, color_0, color_1, color_2);
         }
+    }
+
+    void Rasterizer::draw_wireframe(
+        Framebuffer& fb,
+        const std::vector<gmath::Vector3d> &screen_coords,
+        const std::vector<std::vector<int>> &faces,
+        const Color &color
+        ) {
+        for (const std::vector<int> &face : faces) {
+            const int index_0 = face[0];
+            const int index_1 = face[1];
+            const int index_2 = face[2];
+
+            gmath::Vector3f v0 = {(float)screen_coords[index_0].x, (float)screen_coords[index_0].y, (float)screen_coords[index_0].z};
+            gmath::Vector3f v1 = {(float)screen_coords[index_1].x, (float)screen_coords[index_1].y, (float)screen_coords[index_1].z};
+            gmath::Vector3f v2 = {(float)screen_coords[index_2].x, (float)screen_coords[index_2].y, (float)screen_coords[index_2].z};
+
+            draw_only_lined_triangle(fb, v0, v1, v2, color);
+        }
+    }
+
+    void Rasterizer::draw_only_lined_triangle(
+        Framebuffer &fb,
+        const gmath::Vector3f &a,
+        const gmath::Vector3f &b,
+        const gmath::Vector3f &c,
+        const Color &line_color
+        ) {
+        draw_3d_line(fb, a, b, line_color);
+        draw_3d_line(fb, b, c, line_color);
+        draw_3d_line(fb, c, a, line_color);
     }
 }

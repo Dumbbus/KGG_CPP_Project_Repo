@@ -4,6 +4,7 @@
 
 #ifndef KGG_CPP_PROJECT_REPO_RASTERIZER_H
 #define KGG_CPP_PROJECT_REPO_RASTERIZER_H
+#include "imgui.h"
 #include "Mesh.hpp"
 #include "Render.h"
 #include "Math/Vector2.hpp"
@@ -15,12 +16,40 @@
 namespace render {
     class Rasterizer {
     public:
-        void draw_triangle(
-            Framebuffer& framebuffer,
-            const gmath::Vector2<float> a,
-            const gmath::Vector2<float> b,
-            const gmath::Vector2<float> c,
+        void draw_shape(
+            Framebuffer &fb,
+            const std::vector<gmath::Vector3d>& screen_coords,
+            const std::vector<std::vector<int>>& faces,
             const Color& color
+        );
+
+        void draw_shape_soft_shadow(
+            Framebuffer& fb,
+            const std::vector<ProcessedVertex>& processed_vertices,
+            const std::vector<std::vector<int>>& faces,
+            const Color& base_color
+        );
+
+        void draw_wireframe(
+            Framebuffer& fb,
+            const std::vector<gmath::Vector3d>& screen_coords,
+            const std::vector<std::vector<int>>& faces,
+            const Color& color
+            );
+
+    private:
+        void draw_scene(
+            const std::vector<std::vector<int>>& faces,
+            const std::vector<gmath::Vector3d>& screen_coords,
+            Framebuffer& fb,
+            const Color& color
+        );
+
+        void draw_scene_soft_shadow(
+            const std::vector<std::vector<int>>& faces,
+            const std::vector<ProcessedVertex>& processed_vertices,
+            Framebuffer& fb,
+            const Color& base_color
         );
 
         void draw_colored_triangle(
@@ -33,33 +62,12 @@ namespace render {
             const Color& color_c
         );
 
-        void draw_shape(
-            Framebuffer &fb,
-            const std::vector<gmath::Vector3d>& screen_coords,
-            const std::vector<std::vector<int>>& faces,
-            const Color& color
-        );
-
-        void draw_shape_lit(
+        void draw_only_lined_triangle(
             Framebuffer& fb,
-            const std::vector<ProcessedVertex>& processed_vertices,
-            const std::vector<std::vector<int>>& faces,
-            const Color& base_color
-        );
-
-    private:
-        void draw_scene(
-            const std::vector<std::vector<int>>& faces,
-            const std::vector<gmath::Vector3d>& screen_coords,
-            Framebuffer& fb,
-            const Color& color
-        );
-
-        void draw_scene_lit(
-            const std::vector<std::vector<int>>& faces,
-            const std::vector<ProcessedVertex>& processed_vertices,
-            Framebuffer& fb,
-            const Color& base_color
+            const gmath::Vector3f &a,
+            const gmath::Vector3f &b,
+            const gmath::Vector3f &c,
+            const Color &line_color
         );
     };
 }

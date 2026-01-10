@@ -36,11 +36,6 @@ std::vector<gmath::Vector3d> Render::process_mesh(
             double screen_x = (ndc_x + 1.0) * (width / 2.0);
             double screen_y = (1.0 - ndc_y) * (height / 2.0);
 
-            // Внутри цикла Render::process_mesh
-            if (screen_vertices.empty()) {
-                std::cout << "Vertex 0 Screen: " << screen_x << ", " << screen_y << " Z: " << ndc_z << std::endl;
-            }
-
             screen_vertices.push_back({screen_x, screen_y, ndc_z});
         }
     }

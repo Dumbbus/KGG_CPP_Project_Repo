@@ -126,35 +126,42 @@ void Window::create_Window() {
             for (Object& object : scenes.at(chosen_scene)->objects3d) {
                 object.transform.rotate({0, -0.01, -0.01});
 
-                // const auto processed_mesh = Render::process_mesh(
-                //     object.mesh.get_vertices(),
-                //     object.transform.get_model_matrix(),
-                //     scenes.at(chosen_scene)->projection.get_projection_matrix(),
-                //     scenes.at(chosen_scene)->camera.get_view_matrix(),
-                //     WIDTH,
-                //     HEIGHT
-                //     );
-
-                const auto processed_mesh = Render::process_mesh_with_normals(
+                const auto processed_mesh = Render::process_mesh(
                     object.mesh.get_vertices(),
-                    object.mesh.get_normals(),
                     object.transform.get_model_matrix(),
                     scenes.at(chosen_scene)->projection.get_projection_matrix(),
                     scenes.at(chosen_scene)->camera.get_view_matrix(),
                     WIDTH,
                     HEIGHT
-                );
+                    );
+
+                // const auto processed_mesh = Render::process_mesh_with_normals(
+                //     object.mesh.get_vertices(),
+                //     object.mesh.get_normals(),
+                //     object.transform.get_model_matrix(),
+                //     scenes.at(chosen_scene)->projection.get_projection_matrix(),
+                //     scenes.at(chosen_scene)->camera.get_view_matrix(),
+                //     WIDTH,
+                //     HEIGHT
+                // );
 
                 // rasterizer.draw_shape(fb,
                 //     processed_mesh,
                 //     object.mesh.m_faces, Color::yellow());
 
-                rasterizer.draw_shape_lit(
+                // rasterizer.draw_shape_soft_shadow(
+                //     fb,
+                //     processed_mesh,
+                //     object.mesh.m_faces,
+                //     Color::yellow()
+                //     );
+
+                rasterizer.draw_wireframe(
                     fb,
                     processed_mesh,
                     object.mesh.m_faces,
-                    Color::yellow()
-                    );
+                    Color::black()
+                );
             }
         }
         ImGui::SFML::Update(window, deltaClock.restart());
