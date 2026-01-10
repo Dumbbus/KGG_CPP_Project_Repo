@@ -24,16 +24,6 @@ namespace render {
         );
 
         void draw_colored_triangle(
-        Framebuffer& framebuffer,
-        const gmath::Vector2<float> a,
-        const gmath::Vector2<float> b,
-        const gmath::Vector2<float> c,
-        const Color& color_a,
-        const Color& color_b,
-        const Color& color_c
-        );
-
-        void draw_colored_triangle(
             Framebuffer& framebuffer,
             const gmath::Vector3<float> a,
             const gmath::Vector3<float> b,
@@ -50,12 +40,26 @@ namespace render {
             const Color& color
         );
 
+        void draw_shape_lit(
+            Framebuffer& fb,
+            const std::vector<ProcessedVertex>& processed_vertices,
+            const std::vector<std::vector<int>>& faces,
+            const Color& base_color
+        );
+
     private:
         void draw_scene(
             const std::vector<std::vector<int>>& faces,
             const std::vector<gmath::Vector3d>& screen_coords,
             Framebuffer& fb,
             const Color& color
+        );
+
+        void draw_scene_lit(
+            const std::vector<std::vector<int>>& faces,
+            const std::vector<ProcessedVertex>& processed_vertices,
+            Framebuffer& fb,
+            const Color& base_color
         );
     };
 }

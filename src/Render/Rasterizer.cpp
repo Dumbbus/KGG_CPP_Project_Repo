@@ -47,9 +47,6 @@ namespace render {
         );
     }
 
-    // TODO: одинаковые фрагменты кода
-    // сделать более универсальным по возможности
-    // хоть это и будут треугольники
     void Rasterizer::draw_colored_triangle(
         Framebuffer& framebuffer,
         const gmath::Vector3<float> a,
@@ -141,6 +138,59 @@ namespace render {
 
             draw_colored_triangle(fb, v0, v1, v2, face_color, face_color, face_color);
             face_index++;
+        }
+    }
+
+    void Rasterizer::draw_shape_lit(
+        Framebuffer &fb,
+        const std::vector<ProcessedVertex> &processed_vertices,
+        const std::vector<std::vector<int> > &faces,
+        const Color &base_color
+        ) {
+        draw_scene_lit(faces, processed_vertices, fb, base_color);
+    }
+
+    void Rasterizer::draw_scene_lit(
+        const std::vector<std::vector<int>> &faces,
+        const std::vector<ProcessedVertex> &processed_vertices,
+        Framebuffer &fb,
+        const Color &color
+    ) {
+        gmath::Vector3f light_direction(0.0f, 1.0f, 1.0f);
+        light_direction.normalize();
+
+        for (const std::vector<int> &face : faces) {
+            const int index_0 = face[0];
+            const int index_1 = face[1];
+            const int index_2 = face[2];
+
+            const auto& pv0 = processed_vertices[index_0];
+            const auto& pv1 = processed_vertices[index_1];
+            const auto& pv2 = processed_vertices[index_2];
+
+            const gmath::Vector3f v0 ={(float)pv0.position.x, (float)pv0.position.y, (float)pv0.position.z};
+            const gmath::Vector3f v1 ={(float)pv1.position.x, (float)pv1.position.y, (float)pv1.position.z};
+            const gmath::Vector3f v2 ={(float)pv2.position.x, (float)pv2.position.y, (float)pv2.position.z};
+
+            gmath::Vector3f normal_0 = {(float)pv0.normal.x, (float)pv0.normal.y, (float)pv0.normal.z};
+            gmath::Vector3f normal_1 = {(float)pv1.normal.x, (float)pv1.normal.y, (float)pv1.normal.z};
+            gmath::Vector3f normal_2 = {(float)pv2.normal.x, (float)pv2.normal.y, (float)pv2.normal.z};
+
+            normal_0.normalize();
+            normal_1.normalize();
+            normal_2.normalize();
+
+            const float ambient = 0.10f;
+
+            const float index_max_0 = std::max(ambient, normal_0.dot(light_direction));
+            const float index_max_1 = std::max(ambient, normal_1.dot(light_direction));
+            const float index_max_2 = std::max(ambient, normal_2.dot(light_direction));
+
+            const Color color_0((uint8_t)(index_max_0 * color.r), (uint8_t)(index_max_0 * color.g), (uint8_t)(index_max_0 * color.b));
+            const Color color_1((uint8_t)(index_max_1 * color.r), (uint8_t)(index_max_1 * color.g), (uint8_t)(index_max_1 * color.b));
+            const Color color_2((uint8_t)(index_max_2 * color.r), (uint8_t)(index_max_2 * color.g), (uint8_t)(index_max_2 * color.b));
+
+            draw_colored_triangle(fb, v0, v1, v2, color_0, color_1, color_2);
         }
     }
 }

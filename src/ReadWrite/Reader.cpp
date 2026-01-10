@@ -36,5 +36,8 @@ using namespace std;
             }
 
         }
+
+        object3d.mesh.recompute_normals();
+
         return object3d;
     }

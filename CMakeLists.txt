@@ -78,7 +78,7 @@ FetchContent_Declare(
         URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
 )
 # For Windows: Prevent overriding the parent project's compiler/linker settings
-#set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 include(GoogleTest)
 # ---------- Main App ----------
@@ -99,11 +99,8 @@ add_executable(KGG_CPP_Project_Repo
         src/Scene/Transform.cpp
         src/Scene/Projection.cpp
         src/ReadWrite/Object.cpp
-        include/ReadWrite/Object.h
         src/ReadWrite/Reader.cpp
-        include/ReadWrite/Reader.h
         src/Scene/Scene.cpp
-        include/Scene/Scene.h
 )
 
 target_include_directories(KGG_CPP_Project_Repo
@@ -119,6 +116,9 @@ target_link_libraries(KGG_CPP_Project_Repo
         ImGui-SFML::ImGui-SFML
         imguifiledialog_lib
 )
+
+target_compile_definitions(KGG_CPP_Project_Repo PRIVATE _USE_MATH_DEFINES)
+
 # ---------- Tests ----------
 enable_testing()
 

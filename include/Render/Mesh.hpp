@@ -72,6 +72,8 @@ class Mesh {
         int vertex_count() const { return m_vertices.size(); }
         //int normals_count() const { m_vertices.size(); }
         int faces_count() const { return m_faces.size(); }
+
+        void recompute_normals();
 };
 
 
