@@ -5,6 +5,7 @@
 #include "Render/Rasterizer.h"
 
 #include <algorithm>
+#include <complex>
 
 namespace render {
     static float edge(
@@ -41,9 +42,9 @@ namespace render {
             std::swap(z_0, z_1);
         }
 
-        int d_x = x_1 - x_0;
+        int d_x = std::abs(x_1 - x_0);
         int d_y = std::abs(y_1 - y_0);
-        int error = d_x / 2;
+        int error = 0;
         int y_step = (y_0 < y_1) ? 1 : -1;
         int y = y_0;
 
@@ -99,6 +100,20 @@ namespace render {
         );
     }
 
+    // Для интерполяции нормалей (более адекватные тени)
+    static gmath::Vector3f interpolate_normal(
+        float alpha,
+        float beta,
+        float gamma,
+        const gmath::Vector3f& normal_1,
+        const gmath::Vector3f& normal_2,
+        const gmath::Vector3f& normal_3
+    ) {
+        gmath::Vector3f result = normal_1 * alpha + normal_2 * beta + normal_3 * gamma;
+
+        return result.normalized();
+    }
+
     void Rasterizer::draw_colored_triangle(
         Framebuffer& framebuffer,
         const gmath::Vector3<float> a,
@@ -126,7 +141,6 @@ namespace render {
         max_x = std::min(max_x, static_cast<int>(framebuffer.get_width()) - 1);
         max_y = std::min(max_y, static_cast<int>(framebuffer.get_height()) - 1);
 
-        // Кэшируем 2D проекции вершин заранее, чтобы не создавать векторы в цикле
         const gmath::Vector2<float> v0(a.x, a.y);
         const gmath::Vector2<float> v1(b.x, b.y);
         const gmath::Vector2<float> v2(c.x, c.y);
@@ -197,19 +211,30 @@ namespace render {
         Framebuffer &fb,
         const std::vector<ProcessedVertex> &processed_vertices,
         const std::vector<std::vector<int> > &faces,
+        const gmath::Vector3f& light_direction,
+        const float ambient,
         const Color &base_color
         ) {
-        draw_scene_soft_shadow(faces, processed_vertices, fb, base_color);
+        draw_scene_soft_shadow(
+            faces,
+            processed_vertices,
+            light_direction,
+            ambient,
+            fb,
+            base_color
+            );
     }
 
     void Rasterizer::draw_scene_soft_shadow(
         const std::vector<std::vector<int>> &faces,
         const std::vector<ProcessedVertex> &processed_vertices,
+        const gmath::Vector3f& light_direction,
+        const float ambient,
         Framebuffer &fb,
         const Color &color
     ) {
-        gmath::Vector3f light_direction(0.0f, 1.0f, 1.0f);
-        light_direction.normalize();
+        //gmath::Vector3f light_direction(0.0f, 1.0f, 1.0f);
+        //light_direction.normalize();
 
         for (const std::vector<int> &face : faces) {
             const int index_0 = face[0];
@@ -232,17 +257,7 @@ namespace render {
             normal_1.normalize();
             normal_2.normalize();
 
-            const float ambient = 0.10f;
-
-            const float index_max_0 = std::max(ambient, normal_0.dot(light_direction));
-            const float index_max_1 = std::max(ambient, normal_1.dot(light_direction));
-            const float index_max_2 = std::max(ambient, normal_2.dot(light_direction));
-
-            const Color color_0((uint8_t)(index_max_0 * color.r), (uint8_t)(index_max_0 * color.g), (uint8_t)(index_max_0 * color.b));
-            const Color color_1((uint8_t)(index_max_1 * color.r), (uint8_t)(index_max_1 * color.g), (uint8_t)(index_max_1 * color.b));
-            const Color color_2((uint8_t)(index_max_2 * color.r), (uint8_t)(index_max_2 * color.g), (uint8_t)(index_max_2 * color.b));
-
-            draw_colored_triangle(fb, v0, v1, v2, color_0, color_1, color_2);
+            draw_phong_triangle(fb, v0, v1, v2, normal_0, normal_1, normal_2, light_direction, ambient, color);
         }
     }
 
@@ -275,5 +290,76 @@ namespace render {
         draw_3d_line(fb, a, b, line_color);
         draw_3d_line(fb, b, c, line_color);
         draw_3d_line(fb, c, a, line_color);
+    }
+
+    void Rasterizer::draw_phong_triangle(
+        Framebuffer& fb,
+        const gmath::Vector3<float> a,
+        const gmath::Vector3<float> b,
+        const gmath::Vector3<float> c,
+        const gmath::Vector3<float> normal_a,
+        const gmath::Vector3<float> normal_b,
+        const gmath::Vector3<float> normal_c,
+        const gmath::Vector3<float> light_direction,
+        const float ambient,
+        const Color &color
+    ) {
+        int min_x = static_cast<int>(
+            std::floor(std::min({a.x, b.x, c.x}))
+            );
+        int max_x = static_cast<int>(
+            std::floor(std::max({a.x, b.x, c.x}))
+            );
+        int min_y = static_cast<int>(
+            std::floor(std::min({a.y, b.y, c.y}))
+            );
+        int max_y = static_cast<int>(
+            std::floor(std::max({a.y, b.y, c.y}))
+            );
+
+        min_x = std::max(min_x, 0);
+        min_y = std::max(min_y, 0);
+        max_x = std::min(max_x, static_cast<int>(fb.get_width()) - 1);
+        max_y = std::min(max_y, static_cast<int>(fb.get_height()) - 1);
+
+        const gmath::Vector2<float> v0(a.x, a.y);
+        const gmath::Vector2<float> v1(b.x, b.y);
+        const gmath::Vector2<float> v2(c.x, c.y);
+
+        const float area = edge(v0, v1, v2);
+        if (std::abs(area) < 0.00001f) return;
+
+        for (int y = min_y; y <= max_y; ++y) {
+            for (int x = min_x; x <= max_x; ++x) {
+                gmath::Vector2<float> pixel(x + 0.5f, y + 0.5f);
+
+                float w0 = edge(v1, v2, pixel);
+                float w1 = edge(v2, v0, pixel);
+                float w2 = edge(v0, v1, pixel);
+
+                if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
+                    //framebuffer.set_pixel(x, y, color);
+                    float alpha = w0 / area;
+                    float beta = w1 / area;
+                    float gamma = w2 / area;
+
+                    gmath::Vector3f pixel_normal = interpolate_normal(alpha, beta, gamma, normal_a, normal_b, normal_c);
+
+                    float diffuse = std::max(0.0f, pixel_normal.dot(light_direction));
+                    float intensity = std::min(1.0f, ambient + diffuse);
+
+                    float z = alpha * a.z + beta * b.z + gamma * c.z;
+
+                    Color pixel_color(
+                        (std::uint8_t) (intensity * color.r),
+                        (std::uint8_t) (intensity * color.g),
+                        (std::uint8_t) (intensity * color.b),
+                        color.a
+                    );
+
+                    fb.set_pixel(x, y, pixel_color, z);
+                }
+            }
+        }
     }
 }
