@@ -211,6 +211,8 @@ namespace render {
         Framebuffer &fb,
         const std::vector<ProcessedVertex> &processed_vertices,
         const std::vector<std::vector<int> > &faces,
+        const std::vector<gmath::Vector3d> face_normals,
+        const bool use_face_normals,
         const gmath::Vector3f& light_direction,
         const float ambient,
         const Color &base_color
@@ -219,6 +221,8 @@ namespace render {
             faces,
             processed_vertices,
             light_direction,
+            face_normals,
+            use_face_normals,
             ambient,
             fb,
             base_color
@@ -226,9 +230,11 @@ namespace render {
     }
 
     void Rasterizer::draw_scene_soft_shadow(
-        const std::vector<std::vector<int>> &faces,
-        const std::vector<ProcessedVertex> &processed_vertices,
+        const std::vector<std::vector<int>>& faces,
+        const std::vector<ProcessedVertex>& processed_vertices,
         const gmath::Vector3f& light_direction,
+        const std::vector<gmath::Vector3d>& face_normals,
+        const bool use_face_normals,
         const float ambient,
         Framebuffer &fb,
         const Color &color
@@ -236,7 +242,8 @@ namespace render {
         //gmath::Vector3f light_direction(0.0f, 1.0f, 1.0f);
         //light_direction.normalize();
 
-        for (const std::vector<int> &face : faces) {
+        for (size_t i = 0; i < faces.size(); ++i) {
+            const auto& face = faces[i];
             const int index_0 = face[0];
             const int index_1 = face[1];
             const int index_2 = face[2];
@@ -249,13 +256,26 @@ namespace render {
             const gmath::Vector3f v1 ={(float)pv1.position.x, (float)pv1.position.y, (float)pv1.position.z};
             const gmath::Vector3f v2 ={(float)pv2.position.x, (float)pv2.position.y, (float)pv2.position.z};
 
-            gmath::Vector3f normal_0 = {(float)pv0.normal.x, (float)pv0.normal.y, (float)pv0.normal.z};
-            gmath::Vector3f normal_1 = {(float)pv1.normal.x, (float)pv1.normal.y, (float)pv1.normal.z};
-            gmath::Vector3f normal_2 = {(float)pv2.normal.x, (float)pv2.normal.y, (float)pv2.normal.z};
+            gmath::Vector3f normal_0;
+            gmath::Vector3f normal_1;
+            gmath::Vector3f normal_2;
 
-            normal_0.normalize();
-            normal_1.normalize();
-            normal_2.normalize();
+            if (use_face_normals) {
+                const auto& face_normal = face_normals[i];
+                gmath::Vector3f flat_normal = {(float)face_normal.x, (float)face_normal.y, (float)face_normal.z};
+                flat_normal.normalize();
+                normal_0 = flat_normal;
+                normal_1 = flat_normal;
+                normal_2 = flat_normal;
+            } else {
+                normal_0 = {(float)pv0.normal.x, (float)pv0.normal.y, (float)pv0.normal.z};
+                normal_1 = {(float)pv1.normal.x, (float)pv1.normal.y, (float)pv1.normal.z};
+                normal_2 = {(float)pv2.normal.x, (float)pv2.normal.y, (float)pv2.normal.z};
+
+                normal_0.normalize();
+                normal_1.normalize();
+                normal_2.normalize();
+            }
 
             draw_phong_triangle(fb, v0, v1, v2, normal_0, normal_1, normal_2, light_direction, ambient, color);
         }

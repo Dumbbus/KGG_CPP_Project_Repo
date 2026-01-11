@@ -29,6 +29,7 @@ Render renderer;
 int chosen_scene = 0;
 int chosen_object = 0;
 gmath::Vector3<double> kfkd = {0, 0, -4};
+bool is_flat_shading = true;
 
 void style() {
     ImVec4* colors = ImGui::GetStyle().Colors;
@@ -122,7 +123,6 @@ void Window::create_Window() {
         //clear
         fb.clear(Color::white());
         fb.clear_depth(1.0f);
-        //
 
         //scene drawing
         if (scenes.at(chosen_scene)->objects3d.size() != 0) {
@@ -148,14 +148,28 @@ void Window::create_Window() {
                     HEIGHT
                 );
 
+                std::vector<gmath::Vector3d> transformed_face_normals;
+                transformed_face_normals.reserve(object.mesh.m_faces.size());
+                if (is_flat_shading) {
+                    transformed_face_normals = Render::process_face_normals(
+                        object.mesh.get_faces_normals(),
+                        object.transform.get_model_matrix(),
+                        scenes.at(chosen_scene)->projection.get_projection_matrix(),
+                        scenes.at(chosen_scene)->camera.get_view_matrix()
+                    );
+                }
+
                 // rasterizer.draw_shape(fb,
                 //     processed_mesh,
                 //     object.mesh.m_faces, Color::yellow());
 
+                is_flat_shading = false;
                 rasterizer.draw_shape_soft_shadow(
                     fb,
                     processed_mesh,
                     object.mesh.m_faces,
+                    transformed_face_normals,
+                    is_flat_shading,
                     light_direction,
                     ambient,
                     Color::yellow()

@@ -81,3 +81,22 @@ std::vector<ProcessedVertex> Render::process_mesh_with_normals(
 
     return result;
 }
+
+std::vector<gmath::Vector3d> Render::process_face_normals(
+    const std::vector<gmath::Vector3d>& face_normals,
+    const gmath::Matrix4d &transform_martix,
+    const gmath::Matrix4d &projection_martix,
+    const gmath::Matrix4d &view_martix
+) {
+    std::vector<gmath::Vector3d> result;
+    result.reserve(face_normals.size());
+
+    const gmath::Matrix4d model_view = view_martix * transform_martix;
+
+    for (const auto& normal : face_normals) {
+        const gmath::Vector4d n4 = (model_view * gmath::Vector4d(normal.x, normal.y, normal.z, 0.0)).normalized();
+        result.push_back({n4.x, n4.y, n4.z});
+    }
+
+    return result;
+}
