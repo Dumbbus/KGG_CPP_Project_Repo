@@ -211,7 +211,7 @@ namespace render {
         Framebuffer &fb,
         const std::vector<ProcessedVertex> &processed_vertices,
         const std::vector<std::vector<int> > &faces,
-        const std::vector<gmath::Vector3d> face_normals,
+        const std::vector<gmath::Vector3d>& face_normals,
         const bool use_face_normals,
         const gmath::Vector3f& light_direction,
         const float ambient,

@@ -29,7 +29,8 @@ Render renderer;
 int chosen_scene = 0;
 int chosen_object = 0;
 gmath::Vector3<double> kfkd = {0, 0, -4};
-bool is_flat_shading = true;
+bool is_flat_shading = false;
+constexpr double MIN_DISTANCE = 3.5;
 
 void style() {
     ImVec4* colors = ImGui::GetStyle().Colors;
@@ -93,7 +94,7 @@ colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 
 void Window::create_Window() {
     Camera camera({0, 0, 0}, {0, 0, -5}, {0, 1, 0});
-    Projection projection(90.0, (double) WIDTH / HEIGHT, 0.1, 100.0);
+    Projection projection(90.0, (double) WIDTH / HEIGHT, 0.35, 100.0);
     //здесь создаётся сцена, в будующем можно создать ещё
     scenes.push_back(new Scene(camera, projection));
 
@@ -116,8 +117,36 @@ void Window::create_Window() {
     while (window.isOpen()) {
         while (auto event = window.pollEvent()) {
             ImGui::SFML::ProcessEvent(window, *event);
-            if (event->is<sf::Event::Closed>())
+            if (event->is<sf::Event::Closed>()) {
                 window.close();
+            }
+
+            if (const auto* wheel = event->getIf<sf::Event::MouseWheelScrolled>()) {
+                if (wheel->wheel == sf::Mouse::Wheel::Vertical) {
+                    Scene* scene = scenes.at(chosen_scene);
+                    gmath::Vector3d dir = scene->camera.get_target() - scene->camera.get_eye();
+                    dir.normalize();
+
+                    float distance = (scene->camera.get_target() - scene->camera.get_eye()).length();
+                    float zoom_step = wheel->delta * 0.1 * distance;
+
+                    double new_distance = distance - zoom_step;
+
+                    if (new_distance > MIN_DISTANCE) {
+                        scene->camera.set_position(scene->camera.get_eye() + dir * zoom_step);
+                        //scene->camera.set_target(scene->camera.get_target() + dir * zoom_step);
+                    }
+
+                    std::cout << "Eye: " << scene->camera.get_eye() << "\n";
+                    std::cout << "Target: " << scene->camera.get_target() << "\n";
+                }
+            }
+
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+                if (keyPressed->scancode == sf::Keyboard::Scan::LShift) {
+                    cout << "Hello world" << endl;
+                }
+            }
         }
 
         //clear
@@ -128,6 +157,7 @@ void Window::create_Window() {
         if (scenes.at(chosen_scene)->objects3d.size() != 0) {
             for (Object& object : scenes.at(chosen_scene)->objects3d) {
                 object.transform.rotate({0, -0.01, -0.01});
+                //object.transform.translate({0, 0, 0.05f});
 
                 // const auto processed_mesh = Render::process_mesh(
                 //     object.mesh.get_vertices(),
@@ -163,7 +193,6 @@ void Window::create_Window() {
                 //     processed_mesh,
                 //     object.mesh.m_faces, Color::yellow());
 
-                is_flat_shading = false;
                 rasterizer.draw_shape_soft_shadow(
                     fb,
                     processed_mesh,

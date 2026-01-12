@@ -17,6 +17,10 @@ class Camera {
 
         gmath::Matrix4d get_view_matrix();
 
+        gmath::Vector3d get_eye() const { return m_eye; }
+        gmath::Vector3d get_target() const { return m_target; }
+        gmath::Vector3d get_up() const { return m_up; }
+
         void set_position(gmath::Vector3d pos) { m_eye = pos; }
         void set_target(gmath::Vector3d target) { m_target = target; }
     private:
