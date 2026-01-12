@@ -29,7 +29,7 @@ Render renderer;
 int chosen_scene = 0;
 int chosen_object = 0;
 gmath::Vector3<double> kfkd = {0, 0, -4};
-bool is_flat_shading = false;
+bool is_flat_shading = true;
 constexpr double MIN_DISTANCE = 3.5;
 
 void style() {
@@ -105,7 +105,7 @@ void Window::create_Window() {
     sf::Sprite sprite(texture);
     Rasterizer rasterizer;
     window.setFramerateLimit(60);
-    float ambient = 0.2f;
+    float ambient = 1.0f;
     gmath::Vector3f light_direction = {0.0f, 0.0f, 1.0f};
     light_direction.normalize();
 
@@ -198,7 +198,7 @@ void Window::create_Window() {
                     processed_mesh,
                     object.mesh.m_faces,
                     transformed_face_normals,
-                    is_flat_shading,
+                        is_flat_shading,
                     light_direction,
                     ambient,
                     Color::yellow()

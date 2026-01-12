@@ -36,7 +36,7 @@ namespace render {
 
         void draw_wireframe(
             Framebuffer& fb,
-            const std::vector<gmath::Vector3d>& screen_coords,
+            const std::vector<ProcessedVertex>& screen_coords,
             const std::vector<std::vector<int>>& faces,
             const Color& color
             );

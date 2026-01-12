@@ -252,6 +252,11 @@ namespace render {
             const auto& pv1 = processed_vertices[index_1];
             const auto& pv2 = processed_vertices[index_2];
 
+            // Отсекаем треугольники, слишком близкие или вышедшие за камеру
+            if (!pv0.valid || !pv1.valid || !pv2.valid) {
+                continue;
+            }
+
             const gmath::Vector3f v0 ={(float)pv0.position.x, (float)pv0.position.y, (float)pv0.position.z};
             const gmath::Vector3f v1 ={(float)pv1.position.x, (float)pv1.position.y, (float)pv1.position.z};
             const gmath::Vector3f v2 ={(float)pv2.position.x, (float)pv2.position.y, (float)pv2.position.z};
@@ -283,7 +288,7 @@ namespace render {
 
     void Rasterizer::draw_wireframe(
         Framebuffer& fb,
-        const std::vector<gmath::Vector3d> &screen_coords,
+        const std::vector<ProcessedVertex> &screen_coords,
         const std::vector<std::vector<int>> &faces,
         const Color &color
         ) {
@@ -292,9 +297,29 @@ namespace render {
             const int index_1 = face[1];
             const int index_2 = face[2];
 
-            gmath::Vector3f v0 = {(float)screen_coords[index_0].x, (float)screen_coords[index_0].y, (float)screen_coords[index_0].z};
-            gmath::Vector3f v1 = {(float)screen_coords[index_1].x, (float)screen_coords[index_1].y, (float)screen_coords[index_1].z};
-            gmath::Vector3f v2 = {(float)screen_coords[index_2].x, (float)screen_coords[index_2].y, (float)screen_coords[index_2].z};
+            const auto& pv0 = screen_coords[index_0];
+            const auto& pv1 = screen_coords[index_1];
+            const auto& pv2 = screen_coords[index_2];
+
+            gmath::Vector3f v0 = {
+                (float)pv0.position.x,
+                (float)pv0.position.y,
+                (float)pv0.position.z
+            };
+            gmath::Vector3f v1 = {
+                (float)pv1.position.x,
+                (float)pv1.position.y,
+                (float)pv1.position.z
+            };
+            gmath::Vector3f v2 = {
+                (float)pv2.position.x,
+                (float)pv2.position.y,
+                (float)pv2.position.z
+            };
+
+            if (!pv0.valid || !pv1.valid || !pv2.valid) {
+                continue;
+            }
 
             draw_only_lined_triangle(fb, v0, v1, v2, color);
         }

@@ -19,11 +19,12 @@ struct Viewport {
 struct ProcessedVertex {
     gmath::Vector3d position;
     gmath::Vector3d normal;
+    bool valid;
 };
 
 class Render {
     public:
-    static std::vector<gmath::Vector3d> process_mesh(
+    static std::vector<ProcessedVertex> process_mesh(
         const std::vector<gmath::Vector3d> &vertices,
         const gmath::Matrix4d &transform_martix,
         const gmath::Matrix4d &projection_martix,
