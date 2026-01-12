@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <Light/Normal.hpp>
+#include <Normal.hpp>
 #include <Math/Vector3.hpp>
 
 using namespace gmath;
