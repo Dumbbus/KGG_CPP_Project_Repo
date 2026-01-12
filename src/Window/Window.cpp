@@ -28,7 +28,9 @@ Viewport viewport{(double) HEIGHT, (double) WIDTH};
 Render renderer;
 int chosen_scene = 0;
 int chosen_object = 0;
-gmath::Vector3<double> kfkd = {0, 0, -4};
+gmath::Vector3<double> kfkd = {0, 0, -5};
+bool is_flat_shading = true;
+constexpr double MIN_DISTANCE = 3.5;
 
 void style() {
     ImVec4* colors = ImGui::GetStyle().Colors;
@@ -92,7 +94,7 @@ colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 
 void Window::create_Window() {
     Camera camera({0, 0, 0}, {0, 0, -5}, {0, 1, 0});
-    Projection projection(90.0, (double) WIDTH / HEIGHT, 0.1, 100.0);
+    Projection projection(90.0, (double) WIDTH / HEIGHT, 0.35, 100.0);
     //здесь создаётся сцена, в будующем можно создать ещё
     scenes.push_back(new Scene(camera, projection));
 
@@ -103,6 +105,9 @@ void Window::create_Window() {
     sf::Sprite sprite(texture);
     Rasterizer rasterizer;
     window.setFramerateLimit(60);
+    float ambient = 0.26f;
+    gmath::Vector3f light_direction = {0.0f, 1.0f, 0.0f};
+    light_direction.normalize();
 
 
     ImGui::SFML::Init(window);
@@ -112,56 +117,112 @@ void Window::create_Window() {
     while (window.isOpen()) {
         while (auto event = window.pollEvent()) {
             ImGui::SFML::ProcessEvent(window, *event);
-            if (event->is<sf::Event::Closed>())
+            if (event->is<sf::Event::Closed>()) {
                 window.close();
+            }
+
+            if (const auto* wheel = event->getIf<sf::Event::MouseWheelScrolled>()) {
+                if (wheel->wheel == sf::Mouse::Wheel::Vertical) {
+                    Scene* scene = scenes.at(chosen_scene);
+                    Camera& cam = scene->camera;
+
+                    cam.set_distance(std::max(cam.get_distance() - wheel->delta * 0.1 * cam.get_distance(), MIN_DISTANCE));
+                    cam.rotate_camera(0, 0);
+
+                    std::cout << "Eye: " << scene->camera.get_eye() << "\n";
+                    std::cout << "Target: " << scene->camera.get_target() << "\n";
+                }
+            }
+
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+                if (keyPressed->scancode == sf::Keyboard::Scan::LShift) {
+                    cout << "Hello world" << endl;
+                }
+            }
+
+            if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>()) {
+                static int lastX = mouseMoved->position.x;
+                static int lastY = mouseMoved->position.y;
+
+                int dx = mouseMoved->position.x - lastX;
+                int dy = mouseMoved->position.y - lastY;
+
+                lastX = mouseMoved->position.x;
+                lastY = mouseMoved->position.y;
+
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+                    Scene* scene = scenes.at(chosen_scene);
+                    scene->camera.rotate_camera((float)dx, (float)dy);
+                }
+
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right)) {
+                    Scene* scene = scenes.at(chosen_scene);
+                    scene->camera.pan((float)dx, (float)dy);
+                }
+            }
         }
 
         //clear
         fb.clear(Color::white());
         fb.clear_depth(1.0f);
-        //
 
         //scene drawing
         if (scenes.at(chosen_scene)->objects3d.size() != 0) {
             for (Object& object : scenes.at(chosen_scene)->objects3d) {
-                object.transform.rotate({0, -0.01, -0.01});
+                //object.transform.rotate({0, -0.01, -0.01});
+                //object.transform.translate({0, 0, 0.05f});
 
-                const auto processed_mesh = Render::process_mesh(
-                    object.mesh.get_vertices(),
-                    object.transform.get_model_matrix(),
-                    scenes.at(chosen_scene)->projection.get_projection_matrix(),
-                    scenes.at(chosen_scene)->camera.get_view_matrix(),
-                    WIDTH,
-                    HEIGHT
-                    );
-
-                // const auto processed_mesh = Render::process_mesh_with_normals(
+                // const auto processed_mesh = Render::process_mesh(
                 //     object.mesh.get_vertices(),
-                //     object.mesh.get_normals(),
                 //     object.transform.get_model_matrix(),
                 //     scenes.at(chosen_scene)->projection.get_projection_matrix(),
                 //     scenes.at(chosen_scene)->camera.get_view_matrix(),
                 //     WIDTH,
                 //     HEIGHT
-                // );
+                //     );
+
+                const auto processed_mesh = Render::process_mesh_with_normals(
+                    object.mesh.get_vertices(),
+                    object.mesh.get_normals(),
+                    object.transform.get_model_matrix(),
+                    scenes.at(chosen_scene)->projection.get_projection_matrix(),
+                    scenes.at(chosen_scene)->camera.look_at(),
+                    WIDTH,
+                    HEIGHT
+                );
+
+                std::vector<gmath::Vector3d> transformed_face_normals;
+                transformed_face_normals.reserve(object.mesh.m_faces.size());
+                if (is_flat_shading) {
+                    transformed_face_normals = Render::process_face_normals(
+                        object.mesh.get_faces_normals(),
+                        object.transform.get_model_matrix(),
+                        scenes.at(chosen_scene)->projection.get_projection_matrix(),
+                        scenes.at(chosen_scene)->camera.look_at()
+                    );
+                }
 
                 // rasterizer.draw_shape(fb,
                 //     processed_mesh,
                 //     object.mesh.m_faces, Color::yellow());
 
-                // rasterizer.draw_shape_soft_shadow(
-                //     fb,
-                //     processed_mesh,
-                //     object.mesh.m_faces,
-                //     Color::yellow()
-                //     );
-
-                rasterizer.draw_wireframe(
+                rasterizer.draw_shape_soft_shadow(
                     fb,
                     processed_mesh,
                     object.mesh.m_faces,
-                    Color::black()
-                );
+                    transformed_face_normals,
+                    is_flat_shading,
+                    light_direction,
+                    ambient,
+                    Color::yellow()
+                    );
+
+                // rasterizer.draw_wireframe(
+                //     fb,
+                //     processed_mesh,
+                //     object.mesh.m_faces,
+                //     Color::black()
+                // );
             }
         }
         ImGui::SFML::Update(window, deltaClock.restart());

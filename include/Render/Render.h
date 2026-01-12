@@ -19,11 +19,12 @@ struct Viewport {
 struct ProcessedVertex {
     gmath::Vector3d position;
     gmath::Vector3d normal;
+    bool valid;
 };
 
 class Render {
     public:
-    static std::vector<gmath::Vector3d> process_mesh(
+    static std::vector<ProcessedVertex> process_mesh(
         const std::vector<gmath::Vector3d> &vertices,
         const gmath::Matrix4d &transform_martix,
         const gmath::Matrix4d &projection_martix,
@@ -41,8 +42,14 @@ class Render {
     const double width,
     const double height
     );
-};
 
+    static std::vector<gmath::Vector3d> process_face_normals(
+        const std::vector<gmath::Vector3d>& face_normals,
+        const gmath::Matrix4d &transform_martix,
+        const gmath::Matrix4d &projection_martix,
+        const gmath::Matrix4d &view_martix
+    );
+};
 
 
 #endif //KGG_CPP_PROJECT_REPO_RENDER_H

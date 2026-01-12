@@ -14,5 +14,7 @@ void Mesh::recompute_normals() {
     normal_calculator.compute_face_normals(m_faces, get_vertices());
     normal_calculator.compute_vertex_normals(m_faces, get_vertices());
 
+    m_faces_normals = normal_calculator.get_face_normals();
+
     set_normals(normal_calculator.get_vertex_normals());
 }

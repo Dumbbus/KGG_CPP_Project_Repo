@@ -24,15 +24,19 @@ namespace render {
         );
 
         void draw_shape_soft_shadow(
-            Framebuffer& fb,
-            const std::vector<ProcessedVertex>& processed_vertices,
-            const std::vector<std::vector<int>>& faces,
-            const Color& base_color
+            Framebuffer &fb,
+            const std::vector<ProcessedVertex> &processed_vertices,
+            const std::vector<std::vector<int> > &faces,
+            const std::vector<gmath::Vector3d>& face_normals,
+            const bool use_face_normals,
+            const gmath::Vector3f& light_direction,
+            const float ambient,
+            const Color &base_color
         );
 
         void draw_wireframe(
             Framebuffer& fb,
-            const std::vector<gmath::Vector3d>& screen_coords,
+            const std::vector<ProcessedVertex>& screen_coords,
             const std::vector<std::vector<int>>& faces,
             const Color& color
             );
@@ -46,10 +50,14 @@ namespace render {
         );
 
         void draw_scene_soft_shadow(
-            const std::vector<std::vector<int>>& faces,
-            const std::vector<ProcessedVertex>& processed_vertices,
-            Framebuffer& fb,
-            const Color& base_color
+            const std::vector<std::vector<int>> &faces,
+            const std::vector<ProcessedVertex> &processed_vertices,
+            const gmath::Vector3f& light_direction,
+            const std::vector<gmath::Vector3d> &face_normals,
+            const bool use_face_normals,
+            const float ambient,
+            Framebuffer &fb,
+            const Color &color
         );
 
         void draw_colored_triangle(
@@ -68,6 +76,19 @@ namespace render {
             const gmath::Vector3f &b,
             const gmath::Vector3f &c,
             const Color &line_color
+        );
+
+        void draw_phong_triangle(
+            Framebuffer& fb,
+            const gmath::Vector3<float> a,
+            const gmath::Vector3<float> b,
+            const gmath::Vector3<float> c,
+            const gmath::Vector3<float> normal_a,
+            const gmath::Vector3<float> normal_b,
+            const gmath::Vector3<float> normal_c,
+            const gmath::Vector3<float> light_direction,
+            const float ambient,
+            const Color &color
         );
     };
 }

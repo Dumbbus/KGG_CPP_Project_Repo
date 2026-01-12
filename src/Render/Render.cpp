@@ -5,7 +5,7 @@
 // Transform -> get_model_matrix
 // Projection -> get_projection_matrix
 // Camera -> get_view_matrix
-std::vector<gmath::Vector3d> Render::process_mesh(
+std::vector<ProcessedVertex> Render::process_mesh(
     const std::vector<gmath::Vector3d> &vertices,
     const gmath::Matrix4d &transform_martix,
     const gmath::Matrix4d &projection_martix,
@@ -13,8 +13,10 @@ std::vector<gmath::Vector3d> Render::process_mesh(
     const double width,
     const double height
 ) {
-    std::vector<gmath::Vector3d> screen_vertices;
-    screen_vertices.reserve(vertices.size());
+    std::vector<ProcessedVertex> processed_vertices;
+    processed_vertices.reserve(vertices.size());
+    // std::vector<gmath::Vector3d> screen_vertices;
+    // screen_vertices.reserve(vertices.size());
 
     gmath::Matrix4d MVP = projection_martix * view_martix * transform_martix;
 
@@ -36,11 +38,14 @@ std::vector<gmath::Vector3d> Render::process_mesh(
             double screen_x = (ndc_x + 1.0) * (width / 2.0);
             double screen_y = (1.0 - ndc_y) * (height / 2.0);
 
-            screen_vertices.push_back({screen_x, screen_y, ndc_z});
+            processed_vertices.push_back({{screen_x, screen_y, ndc_z}, {0, 0, 0}, true});
+        } else {
+            processed_vertices.push_back({{0, 0, 0}, {0, 0, 0}, false});
+
         }
     }
 
-    return screen_vertices;
+    return processed_vertices;
 }
 
 std::vector<ProcessedVertex> Render::process_mesh_with_normals(
@@ -75,8 +80,29 @@ std::vector<ProcessedVertex> Render::process_mesh_with_normals(
             const double screen_x = (ndc_x + 1.0) * (width / 2.0);
             const double screen_y = (1.0 - ndc_y) * (height / 2.0);
 
-            result.push_back({{screen_x, screen_y, ndc_z}, normal_view});
+            result.push_back({{screen_x, screen_y, ndc_z}, normal_view, true});
+        } else {
+            result.push_back({{0.0, 0.0, 0.0}, normal_view, false});;
         }
+    }
+
+    return result;
+}
+
+std::vector<gmath::Vector3d> Render::process_face_normals(
+    const std::vector<gmath::Vector3d>& face_normals,
+    const gmath::Matrix4d &transform_martix,
+    const gmath::Matrix4d &projection_martix,
+    const gmath::Matrix4d &view_martix
+) {
+    std::vector<gmath::Vector3d> result;
+    result.reserve(face_normals.size());
+
+    const gmath::Matrix4d model_view = view_martix * transform_martix;
+
+    for (const auto& normal : face_normals) {
+        const gmath::Vector4d n4 = (model_view * gmath::Vector4d(normal.x, normal.y, normal.z, 0.0)).normalized();
+        result.push_back({n4.x, n4.y, n4.z});
     }
 
     return result;

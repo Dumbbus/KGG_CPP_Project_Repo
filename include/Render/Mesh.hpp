@@ -20,6 +20,7 @@ class Mesh {
         // std::vector<gmath::Vector3<double>> m_normals;
         // std::vector<int> m_indices;
         std::vector<std::vector<int>> m_faces;
+        std::vector<gmath::Vector3d> m_faces_normals;
 
         Mesh() = default;
         Mesh(
@@ -52,6 +53,10 @@ class Mesh {
                 normals.push_back(v.normal);
             }
             return normals;
+        }
+
+        std::vector<gmath::Vector3d> get_faces_normals() const {
+                    return m_faces_normals;
         }
 
         void set_vertices(const std::vector<gmath::Vector3<double> > &vertices) {
