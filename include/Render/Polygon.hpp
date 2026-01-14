@@ -16,23 +16,23 @@ public:
         : m_vertices_index(vertices), m_normals_index(normals), m_uvs_index(uvs) {}
     ~Polygon() = default;
 
-    const std::vector<int> get_vertexs() const {
+    const std::vector<int>& get_vertexs() const {
         return m_vertices_index;
     }
-    const std::vector<int> get_normals() const {
+    const std::vector<int>& get_normals() const {
         return m_normals_index;
     }
-    const std::vector<int> get_uvs() const {
+    const std::vector<int>& get_uvs() const {
         return m_uvs_index;
     }
 
-    void set_vertexs(std::vector<int>& vertices) {
+    void set_vertexs(const std::vector<int>& vertices) {
         m_vertices_index = vertices;
     }
-    void set_normals(std::vector<int>& normals) {
+    void set_normals(const std::vector<int>& normals) {
         m_normals_index = normals;
     }
-    void set_uvs(std::vector<int>& uvs) {
+    void set_uvs(const std::vector<int>& uvs) {
         m_uvs_index = uvs;
     }
 

@@ -24,7 +24,7 @@ bool opened = true;
 bool* openedd = &opened;
 vector<Scene*> scenes;//Vector of pointers to scenes
 Reader reader;
-Viewport viewport{(double) HEIGHT, (double) WIDTH};
+//Viewport viewport{(double) HEIGHT, (double) WIDTH};
 Render renderer;
 int chosen_scene = 0;
 int chosen_object = 0;
@@ -175,8 +175,8 @@ void Window::create_Window() {
                 const auto processed_mesh = Render::process_mesh(
                     object.mesh,
                     object.transform.get_model_matrix(),
-                    scenes.at(chosen_scene)->projection.get_projection_matrix(),
                     scenes.at(chosen_scene)->camera.look_at(),
+                    scenes.at(chosen_scene)->projection.get_projection_matrix(),
                     WIDTH,
                     HEIGHT
                 );
