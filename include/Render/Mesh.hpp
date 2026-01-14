@@ -8,6 +8,7 @@
 #include <vector>
 #include "Math/Vector2.hpp"
 #include "Render/Texture.hpp"
+#include "Render/Polygon.hpp"
 
 struct Vertex {
     gmath::Vector3<double> position;
@@ -22,6 +23,11 @@ class Mesh {
         std::vector<std::vector<int>> m_faces;
         std::vector<gmath::Vector3d> m_faces_normals;
         std::shared_ptr<Texture> m_texture;
+
+        std::vector<gmath::Vector3d> m_vertexs;
+        std::vector<gmath::Vector3d> m_normals;
+        std::vector<gmath::Vector2d> m_uvs;
+        std::vector<Polygon> m_polygons;
 
         Mesh() = default;
         Mesh(
