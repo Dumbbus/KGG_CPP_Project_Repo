@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <complex>
+#include <iostream>
 
 namespace render {
     static float edge(
@@ -230,11 +231,13 @@ namespace render {
             gmath::Vector3f normal_0, normal_1, normal_2;
 
             if (use_face_normals) {
-                gmath::Vector3f face_normal(
-                    static_cast<float>((pv1.position - pv0.position).cross(pv2.position - pv0.position).x),
-                    static_cast<float>((pv1.position - pv0.position).cross(pv2.position - pv0.position).y),
-                    static_cast<float>((pv1.position - pv0.position).cross(pv2.position - pv0.position).z)
-                );
+                gmath::Vector3f face_normal = (
+                    gmath::Vector3f((float)pv0.normal.x, (float)pv0.normal.y, (float)pv0.normal.z) +
+                    gmath::Vector3f((float)pv1.normal.x, (float)pv1.normal.y, (float)pv1.normal.z) +
+                    gmath::Vector3f((float)pv2.normal.x, (float)pv2.normal.y, (float)pv2.normal.z)
+                ).normalized();
+
+                std::cout << "Face normal: " << face_normal << std::endl;
 
                 normal_0 = normal_1 = normal_2 = face_normal;
             } else {

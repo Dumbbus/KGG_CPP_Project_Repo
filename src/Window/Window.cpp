@@ -105,10 +105,8 @@ void Window::create_Window() {
     sf::Sprite sprite(texture);
     Rasterizer rasterizer;
     window.setFramerateLimit(60);
-    float ambient = 0.26f;
-    gmath::Vector3f light_direction = {0.0f, 1.0f, 0.0f};
-    light_direction.normalize();
-
+    float ambient = 0.25f;
+    gmath::Vector4d light_direction = {0.0f, 0.0f, 1.0f, 0.0f};
 
     ImGui::SFML::Init(window);
     //Записываем значения объекта в переменные (просто для удобства. Можно убрать)
@@ -172,6 +170,10 @@ void Window::create_Window() {
                 //object.transform.rotate({0, -0.01, -0.01});
                 //object.transform.translate({0, 0, 0.05f});
 
+                gmath::Matrix4d view_mat = scenes.at(chosen_scene)->camera.look_at();
+                gmath::Vector4d light_in_view = (view_mat * light_direction).normalized();
+                gmath::Vector3f light_dir_v = {(float)light_in_view.x, (float)light_in_view.y, (float)light_in_view.z};
+
                 const auto processed_mesh = Render::process_mesh(
                     object.mesh,
                     object.transform.get_model_matrix(),
@@ -185,8 +187,8 @@ void Window::create_Window() {
                     fb,
                     processed_mesh,
                     object.mesh.m_texture.get(),
-                    is_flat_shading,
-                    light_direction,
+                    true,
+                    light_dir_v,
                     ambient,
                     Color::yellow()
                     );
