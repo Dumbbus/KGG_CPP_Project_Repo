@@ -114,6 +114,17 @@ namespace render {
         return result.normalized();
     }
 
+    static gmath::Vector2f interpolate_uv(
+        float alpha,
+        float beta,
+        float gamma,
+        const gmath::Vector2f& uv_1,
+        const gmath::Vector2f& uv_2,
+        const gmath::Vector2f& uv_3
+    ) {
+        return uv_1 * alpha + uv_2 * beta + uv_3 * gamma;
+    }
+
     void Rasterizer::draw_colored_triangle(
         Framebuffer& framebuffer,
         const gmath::Vector3<float> a,
@@ -212,6 +223,7 @@ namespace render {
         const std::vector<ProcessedVertex> &processed_vertices,
         const std::vector<std::vector<int> > &faces,
         const std::vector<gmath::Vector3d>& face_normals,
+        const Texture* texture,
         const bool use_face_normals,
         const gmath::Vector3f& light_direction,
         const float ambient,
@@ -221,6 +233,7 @@ namespace render {
             faces,
             processed_vertices,
             light_direction,
+            texture,
             face_normals,
             use_face_normals,
             ambient,
@@ -233,6 +246,7 @@ namespace render {
         const std::vector<std::vector<int>>& faces,
         const std::vector<ProcessedVertex>& processed_vertices,
         const gmath::Vector3f& light_direction,
+        const Texture* texture,
         const std::vector<gmath::Vector3d>& face_normals,
         const bool use_face_normals,
         const float ambient,
@@ -261,6 +275,10 @@ namespace render {
             const gmath::Vector3f v1 ={(float)pv1.position.x, (float)pv1.position.y, (float)pv1.position.z};
             const gmath::Vector3f v2 ={(float)pv2.position.x, (float)pv2.position.y, (float)pv2.position.z};
 
+            const gmath::Vector2f uv0 = {(float)pv0.uv.x, (float)pv0.uv.y};
+            const gmath::Vector2f uv1 = {(float)pv1.uv.x, (float)pv1.uv.y};
+            const gmath::Vector2f uv2 = {(float)pv2.uv.x, (float)pv2.uv.y};
+
             gmath::Vector3f normal_0;
             gmath::Vector3f normal_1;
             gmath::Vector3f normal_2;
@@ -282,7 +300,25 @@ namespace render {
                 normal_2.normalize();
             }
 
-            draw_phong_triangle(fb, v0, v1, v2, normal_0, normal_1, normal_2, light_direction, ambient, color);
+            draw_phong_triangle(
+                fb,
+                v0,
+                v1,
+                v2,
+                normal_0,
+                normal_1,
+                normal_2,
+                uv0,
+                uv1,
+                uv2,
+                pv0.inv_w,
+                pv1.inv_w,
+                pv2.inv_w,
+                texture,
+                light_direction,
+                ambient,
+                color
+                );
         }
     }
 
@@ -345,6 +381,13 @@ namespace render {
         const gmath::Vector3<float> normal_a,
         const gmath::Vector3<float> normal_b,
         const gmath::Vector3<float> normal_c,
+        const gmath::Vector2<float> uv0,
+        const gmath::Vector2<float> uv1,
+        const gmath::Vector2<float> uv2,
+        const float pv0_inv_w,
+        const float pv1_inv_w,
+        const float pv2_inv_w,
+        const Texture* texture,
         const gmath::Vector3<float> light_direction,
         const float ambient,
         const Color &color
@@ -388,18 +431,24 @@ namespace render {
                     float beta = w1 / area;
                     float gamma = w2 / area;
 
+                    float inv_w = alpha * pv0_inv_w + beta * pv1_inv_w + gamma * pv2_inv_w;
+
+                    gmath::Vector2f uv = interpolate_uv(alpha, beta, gamma, uv0, uv1, uv2) / inv_w;
+
+                    Color texture_color = (texture && !texture->empty()) ? texture->sample(uv.x, uv.y) : color;
+
                     gmath::Vector3f pixel_normal = interpolate_normal(alpha, beta, gamma, normal_a, normal_b, normal_c);
 
                     float diffuse = std::max(0.0f, pixel_normal.dot(light_direction));
                     float intensity = std::min(1.0f, ambient + diffuse);
 
-                    float z = alpha * a.z + beta * b.z + gamma * c.z;
+                    float z = (alpha * a.z + beta * b.z + gamma * c.z);
 
                     Color pixel_color(
-                        (std::uint8_t) (intensity * color.r),
-                        (std::uint8_t) (intensity * color.g),
-                        (std::uint8_t) (intensity * color.b),
-                        color.a
+                        (std::uint8_t) (intensity * texture_color.r),
+                        (std::uint8_t) (intensity * texture_color.g),
+                        (std::uint8_t) (intensity * texture_color.b),
+                        texture_color.a
                     );
 
                     fb.set_pixel(x, y, pixel_color, z);

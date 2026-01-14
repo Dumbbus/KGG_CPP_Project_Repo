@@ -19,6 +19,8 @@ struct Viewport {
 struct ProcessedVertex {
     gmath::Vector3d position;
     gmath::Vector3d normal;
+    gmath::Vector2d uv;
+    double inv_w;
     bool valid;
 };
 
@@ -26,6 +28,7 @@ class Render {
     public:
     static std::vector<ProcessedVertex> process_mesh(
         const std::vector<gmath::Vector3d> &vertices,
+        const std::vector<gmath::Vector2d> &uv,
         const gmath::Matrix4d &transform_martix,
         const gmath::Matrix4d &projection_martix,
         const gmath::Matrix4d &view_martix,
@@ -34,13 +37,14 @@ class Render {
     );
 
     static std::vector<ProcessedVertex> process_mesh_with_normals(
-    const std::vector<gmath::Vector3d> &vertices,
-    const std::vector<gmath::Vector3d> &normals,
-    const gmath::Matrix4d &transform_martix,
-    const gmath::Matrix4d &projection_martix,
-    const gmath::Matrix4d &view_martix,
-    const double width,
-    const double height
+        const std::vector<gmath::Vector3d> &vertices,
+        const std::vector<gmath::Vector3d> &normals,
+        const std::vector<gmath::Vector2d> &uv,
+        const gmath::Matrix4d &transform_martix,
+        const gmath::Matrix4d &projection_martix,
+        const gmath::Matrix4d &view_martix,
+        const double width,
+        const double height
     );
 
     static std::vector<gmath::Vector3d> process_face_normals(

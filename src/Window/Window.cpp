@@ -29,7 +29,7 @@ Render renderer;
 int chosen_scene = 0;
 int chosen_object = 0;
 gmath::Vector3<double> kfkd = {0, 0, -5};
-bool is_flat_shading = true;
+bool is_flat_shading = false;
 constexpr double MIN_DISTANCE = 3.5;
 
 void style() {
@@ -172,18 +172,10 @@ void Window::create_Window() {
                 //object.transform.rotate({0, -0.01, -0.01});
                 //object.transform.translate({0, 0, 0.05f});
 
-                // const auto processed_mesh = Render::process_mesh(
-                //     object.mesh.get_vertices(),
-                //     object.transform.get_model_matrix(),
-                //     scenes.at(chosen_scene)->projection.get_projection_matrix(),
-                //     scenes.at(chosen_scene)->camera.get_view_matrix(),
-                //     WIDTH,
-                //     HEIGHT
-                //     );
-
                 const auto processed_mesh = Render::process_mesh_with_normals(
                     object.mesh.get_vertices(),
                     object.mesh.get_normals(),
+                    object.mesh.get_uv(),
                     object.transform.get_model_matrix(),
                     scenes.at(chosen_scene)->projection.get_projection_matrix(),
                     scenes.at(chosen_scene)->camera.look_at(),
@@ -191,29 +183,15 @@ void Window::create_Window() {
                     HEIGHT
                 );
 
-                std::vector<gmath::Vector3d> transformed_face_normals;
-                transformed_face_normals.reserve(object.mesh.m_faces.size());
-                if (is_flat_shading) {
-                    transformed_face_normals = Render::process_face_normals(
-                        object.mesh.get_faces_normals(),
-                        object.transform.get_model_matrix(),
-                        scenes.at(chosen_scene)->projection.get_projection_matrix(),
-                        scenes.at(chosen_scene)->camera.look_at()
-                    );
-                }
-
-                // rasterizer.draw_shape(fb,
-                //     processed_mesh,
-                //     object.mesh.m_faces, Color::yellow());
-
                 rasterizer.draw_shape_soft_shadow(
                     fb,
                     processed_mesh,
                     object.mesh.m_faces,
-                    transformed_face_normals,
+                    object.mesh.m_faces_normals,
+                    object.mesh.m_texture.get(),
                     is_flat_shading,
                     light_direction,
-                    ambient,
+                    ambient = 1.0f,
                     Color::yellow()
                     );
 
