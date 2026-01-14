@@ -192,7 +192,7 @@ void Window::create_Window() {
                     is_flat_shading,
                     light_direction,
                     ambient = 1.0f,
-                    Color::yellow()
+                    {255, 0, 0, 120}
                     );
 
                 // rasterizer.draw_wireframe(
