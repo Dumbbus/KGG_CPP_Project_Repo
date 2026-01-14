@@ -3,6 +3,8 @@
 //
 
 #include "Render/Texture.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 render::Color Texture::sample(float u, float v) const {
     if (pixels.empty()) {
@@ -25,4 +27,18 @@ render::Color Texture::sample(float u, float v) const {
     std::uint8_t a = (channels == 4) ? pixels[index + 3] : 255;
 
     return {r, g, b, a};
+}
+
+bool Texture::load_texture(const char *filename, Texture &texture) {
+    int width, height, channels;
+
+    unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+    if (!data) {
+        return false;
+    }
+
+    texture.width = width;
+    texture.height = height;
+    texture.channels = channels;
+    texture.pixels.assign(data, data + width * height * channels);
 }
