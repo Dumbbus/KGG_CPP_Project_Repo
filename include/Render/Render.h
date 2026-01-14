@@ -11,49 +11,23 @@
 #include "Scene/Projection.h"
 #include <vector>
 
-struct Viewport {
-    double height;
-    double width;
-};
-
 struct ProcessedVertex {
-    gmath::Vector3d position;
-    gmath::Vector3d normal;
-    gmath::Vector2d uv;
+    gmath::Vector3<double> position;
+    gmath::Vector3<double> normal;
+    gmath::Vector2<double> uv;
     double inv_w;
     bool valid;
 };
 
 class Render {
-    public:
+public:
     static std::vector<ProcessedVertex> process_mesh(
-        const std::vector<gmath::Vector3d> &vertices,
-        const std::vector<gmath::Vector2d> &uv,
-        const gmath::Matrix4d &transform_martix,
-        const gmath::Matrix4d &projection_martix,
-        const gmath::Matrix4d &view_martix,
+        const Mesh& mesh,
+        const gmath::Matrix4d& model,
+        const gmath::Matrix4d& view,
+        const gmath::Matrix4d& projection,
         double width,
         double height
     );
-
-    static std::vector<ProcessedVertex> process_mesh_with_normals(
-        const std::vector<gmath::Vector3d> &vertices,
-        const std::vector<gmath::Vector3d> &normals,
-        const std::vector<gmath::Vector2d> &uv,
-        const gmath::Matrix4d &transform_martix,
-        const gmath::Matrix4d &projection_martix,
-        const gmath::Matrix4d &view_martix,
-        const double width,
-        const double height
-    );
-
-    static std::vector<gmath::Vector3d> process_face_normals(
-        const std::vector<gmath::Vector3d>& face_normals,
-        const gmath::Matrix4d &transform_martix,
-        const gmath::Matrix4d &projection_martix,
-        const gmath::Matrix4d &view_martix
-    );
 };
-
-
 #endif //KGG_CPP_PROJECT_REPO_RENDER_H

@@ -12,24 +12,34 @@
 class Polygon {
 public:
     Polygon() = default;
-    Polygon(std::vector<int> vertices, std::vector<int> normals, std::vector<int> uvs)
-        : m_vertices(vertices), m_normals(normals), m_uvs(uvs) {}
+    Polygon(std::vector<int>& vertices, std::vector<int>& normals, std::vector<int>& uvs)
+        : m_vertices_index(vertices), m_normals_index(normals), m_uvs_index(uvs) {}
     ~Polygon() = default;
 
-    std::vector<int> get_vertexs() {
-        return m_vertexs;
+    const std::vector<int> get_vertexs() const {
+        return m_vertices_index;
     }
-    std::vector<int> get_normals() {
-        return m_normals;
+    const std::vector<int> get_normals() const {
+        return m_normals_index;
     }
-    std::vector<int> get_uvs() {
-        return m_uvs;
+    const std::vector<int> get_uvs() const {
+        return m_uvs_index;
+    }
+
+    void set_vertexs(std::vector<int>& vertices) {
+        m_vertices_index = vertices;
+    }
+    void set_normals(std::vector<int>& normals) {
+        m_normals_index = normals;
+    }
+    void set_uvs(std::vector<int>& uvs) {
+        m_uvs_index = uvs;
     }
 
 private:
-    std::vector<int> m_vertexs;
-    std::vector<int> m_normals;
-    std::vector<int> m_uvs;
+    std::vector<int> m_vertices_index;
+    std::vector<int> m_normals_index;
+    std::vector<int> m_uvs_index;
 };
 
 #endif //KGG_CPP_PROJECT_REPO_POLYGON_HPP

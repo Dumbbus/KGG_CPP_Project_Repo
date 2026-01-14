@@ -172,10 +172,8 @@ void Window::create_Window() {
                 //object.transform.rotate({0, -0.01, -0.01});
                 //object.transform.translate({0, 0, 0.05f});
 
-                const auto processed_mesh = Render::process_mesh_with_normals(
-                    object.mesh.get_vertices(),
-                    object.mesh.get_normals(),
-                    object.mesh.get_uv(),
+                const auto processed_mesh = Render::process_mesh(
+                    object.mesh,
                     object.transform.get_model_matrix(),
                     scenes.at(chosen_scene)->projection.get_projection_matrix(),
                     scenes.at(chosen_scene)->camera.look_at(),
@@ -183,15 +181,13 @@ void Window::create_Window() {
                     HEIGHT
                 );
 
-                rasterizer.draw_shape_soft_shadow(
+                rasterizer.draw_soft_shadow(
                     fb,
                     processed_mesh,
-                    object.mesh.m_faces,
-                    object.mesh.m_faces_normals,
                     object.mesh.m_texture.get(),
                     is_flat_shading,
                     light_direction,
-                    ambient = 1.0f,
+                    ambient,
                     Color::yellow()
                     );
 

@@ -5,16 +5,30 @@
 #include <Render/Mesh.hpp>
 
 #include "Light/Normal.hpp"
+#include "Render/Polygon.hpp"
 
 void Mesh::recompute_normals() {
-    if (m_vertices.empty() || m_faces.empty()) return;
+    if (m_vertexs.empty() || m_polygons.empty())
+        return;
 
-    gmath::Normal<double> normal_calculator(vertex_count(), faces_count());
+    m_normals.assign(m_vertexs.size(), gmath::Vector3d{0.0, 0.0, 0.0});
 
-    normal_calculator.compute_face_normals(m_faces, get_vertices());
-    normal_calculator.compute_vertex_normals(m_faces, get_vertices());
+    for (const Polygon& poly : m_polygons) {
+        const auto& index = poly.get_vertexs();
+        if (index.size() < 3) continue;
 
-    m_faces_normals = normal_calculator.get_face_normals();
+        const auto& v0 = m_vertexs[index[0]];
+        const auto& v1 = m_vertexs[index[1]];
+        const auto& v2 = m_vertexs [index[2]];
 
-    set_normals(normal_calculator.get_vertex_normals());
+        gmath::Vector3d face_normal = (v1 - v0).cross(v2 - v0).normalized();
+
+        for (int i : index) {
+            m_normals[i] += face_normal;
+        }
+    }
+
+    for (auto& n : m_normals) {
+        n.normalize();
+    }
 }

@@ -16,18 +16,9 @@
 namespace render {
     class Rasterizer {
     public:
-        void draw_shape(
+        void draw_soft_shadow(
             Framebuffer &fb,
-            const std::vector<gmath::Vector3d>& screen_coords,
-            const std::vector<std::vector<int>>& faces,
-            const Color& color
-        );
-
-        void draw_shape_soft_shadow(
-            Framebuffer &fb,
-            const std::vector<ProcessedVertex> &processed_vertices,
-            const std::vector<std::vector<int> > &faces,
-            const std::vector<gmath::Vector3d>& face_normals,
+            const std::vector<ProcessedVertex> &triangles,
             const Texture* texture,
             const bool use_face_normals,
             const gmath::Vector3f& light_direction,
@@ -38,7 +29,6 @@ namespace render {
         void draw_wireframe(
             Framebuffer& fb,
             const std::vector<ProcessedVertex>& screen_coords,
-            const std::vector<std::vector<int>>& faces,
             const Color& color
             );
 
