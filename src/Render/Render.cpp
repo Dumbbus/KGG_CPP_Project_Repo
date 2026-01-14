@@ -2,55 +2,10 @@
 
 #include <iostream>
 
-// Transform -> get_model_matrix
-// Projection -> get_projection_matrix
-// Camera -> get_view_matrix
-std::vector<ProcessedVertex> Render::process_mesh(
-    const std::vector<gmath::Vector3d> &vertices,
-    const gmath::Matrix4d &transform_martix,
-    const gmath::Matrix4d &projection_martix,
-    const gmath::Matrix4d &view_martix,
-    const double width,
-    const double height
-) {
-    std::vector<ProcessedVertex> processed_vertices;
-    processed_vertices.reserve(vertices.size());
-    // std::vector<gmath::Vector3d> screen_vertices;
-    // screen_vertices.reserve(vertices.size());
-
-    gmath::Matrix4d MVP = projection_martix * view_martix * transform_martix;
-
-    for (const auto& vertex : vertices) {
-        gmath::Vector4d temp_vector(
-            vertex.x,
-            vertex.y,
-            vertex.z,
-            1.0
-        );
-
-        gmath::Vector4d clip_space_v = MVP * temp_vector;
-
-        if (clip_space_v.w >= 0.0001) {
-            double ndc_x = clip_space_v.x / clip_space_v.w;
-            double ndc_y = clip_space_v.y / clip_space_v.w;
-            double ndc_z = clip_space_v.z / clip_space_v.w;
-
-            double screen_x = (ndc_x + 1.0) * (width / 2.0);
-            double screen_y = (1.0 - ndc_y) * (height / 2.0);
-
-            processed_vertices.push_back({{screen_x, screen_y, ndc_z}, {0, 0, 0}, true});
-        } else {
-            processed_vertices.push_back({{0, 0, 0}, {0, 0, 0}, false});
-
-        }
-    }
-
-    return processed_vertices;
-}
-
 std::vector<ProcessedVertex> Render::process_mesh_with_normals(
     const std::vector<gmath::Vector3d> &vertices,
     const std::vector<gmath::Vector3d> &normals,
+    const std::vector<gmath::Vector2d> &uv,
     const gmath::Matrix4d &transform_martix,
     const gmath::Matrix4d &projection_martix,
     const gmath::Matrix4d &view_martix,
@@ -73,6 +28,8 @@ std::vector<ProcessedVertex> Render::process_mesh_with_normals(
         const gmath::Vector3d normal_view = {n4.x, n4.y, n4.z};
 
         if (clip_space_v.w >= 0.0001) {
+            const double inv_w = 1.0 / clip_space_v.w;
+
             const double ndc_x = clip_space_v.x / clip_space_v.w;
             const double ndc_y = clip_space_v.y / clip_space_v.w;
             const double ndc_z = clip_space_v.z / clip_space_v.w;
@@ -80,9 +37,11 @@ std::vector<ProcessedVertex> Render::process_mesh_with_normals(
             const double screen_x = (ndc_x + 1.0) * (width / 2.0);
             const double screen_y = (1.0 - ndc_y) * (height / 2.0);
 
-            result.push_back({{screen_x, screen_y, ndc_z}, normal_view, true});
+            gmath::Vector2d uv_div_w = uv[i] * inv_w;
+
+            result.push_back({{screen_x, screen_y, ndc_z}, normal_view, uv_div_w, inv_w, true});
         } else {
-            result.push_back({{0.0, 0.0, 0.0}, normal_view, false});;
+            result.push_back({{0.0, 0.0, 0.0}, normal_view, {0, 0}, 0.0, false});;
         }
     }
 

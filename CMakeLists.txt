@@ -36,6 +36,7 @@ add_library(imgui STATIC
         ${imgui_SOURCE_DIR}/imgui_widgets.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+        include/Render/Texture.hpp
 )
 FetchContent_Declare(
         ImGuiFileDialog
@@ -101,6 +102,7 @@ add_executable(KGG_CPP_Project_Repo
         src/ReadWrite/Object.cpp
         src/ReadWrite/Reader.cpp
         src/Scene/Scene.cpp
+        src/Render/Texture.cpp
 )
 
 target_include_directories(KGG_CPP_Project_Repo
