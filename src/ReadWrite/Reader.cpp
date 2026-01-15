@@ -9,7 +9,6 @@
 #include <vector>
 #include <ReadWrite/Object.hpp>
 using namespace std;
-
 std::vector<std::string> splitWithEmpty(const std::string& s, char delimiter) {
     std::vector<std::string> tokens;
     std::string token;
@@ -56,12 +55,12 @@ Object Reader::Read(const std::string filename) {
                 face_count++;
                 normal_count++;
                 texture_count++;
-                cout << s << endl;
                 std::vector<std::string> result = splitWithEmpty(s, delim);
                 face.emplace_back(std::stoi(result[0])-1);
                 switch (result.size()) {
                     case 1:
                         are_normals_present = false;
+                        break;
                     case 2:
                         are_normals_present = false;
                         is_default_uv_needed = false;
@@ -76,6 +75,7 @@ Object Reader::Read(const std::string filename) {
                             is_default_uv_needed = true;
                             normal.emplace_back(std::stoi(result[2])-1);
                         }
+                        break;
                 }
             }
             try {

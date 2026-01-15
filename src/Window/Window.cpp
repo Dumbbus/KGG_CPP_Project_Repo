@@ -247,6 +247,7 @@ void Window::create_Window() {
                     IGFD::FileDialogConfig config;
                     config.path = ".";
                     config.filePathName = "/home/lunarimoonlin/KGG_CPP_Project_Repo/resources/models/";
+                    ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
                     ImGuiFileDialog::Instance()->OpenDialog(
                         "FileChooser", "File Explorer",
                         ".obj", config);
@@ -264,6 +265,17 @@ void Window::create_Window() {
             ImGui::EndMainMenuBar();
         }
         //Menu end
+        ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
+        if (ImGui::Begin("My First ImGui Window")) {
+            // 2. Add content inside the window
+            ImGui::Text("Hello, world!");
+            if (ImGui::Button("Click Me"))
+            {
+                // Handle button click logic here
+            }
+            ImGui::End();
+        }
+
 
         //File explorer instance processing
         // |
