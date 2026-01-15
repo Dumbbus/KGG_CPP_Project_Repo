@@ -125,6 +125,9 @@ Object Reader::Read(const std::string filename) {
             object3d.mesh.m_uvs.emplace_back(vertex);
         }
     }
+    if (dull_flag) {
+        object3d.mesh.set_dull_uv();
+    }
     object3d.mesh.recompute_normals();
 
     return object3d;
