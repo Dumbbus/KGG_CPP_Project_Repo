@@ -15,7 +15,7 @@ struct ProcessedVertex {
     gmath::Vector3<double> position;
     gmath::Vector3<double> normal;
     gmath::Vector2<double> uv;
-    double inv_w;
+    double inv_w; // 1 / w
     bool valid;
 };
 
@@ -29,5 +29,11 @@ public:
         double width,
         double height
     );
+
+    static std::vector<gmath::Vector3d> process_face_normals(
+        const std::vector<gmath::Vector3d> &face_normals,
+        const gmath::Matrix4d& model,
+        const gmath::Matrix4d& view
+        );
 };
 #endif //KGG_CPP_PROJECT_REPO_RENDER_H

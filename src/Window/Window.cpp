@@ -29,7 +29,7 @@ Render renderer;
 int chosen_scene = 0;
 int chosen_object = 0;
 gmath::Vector3<double> kfkd = {0, 0, -5};
-bool is_flat_shading = false;
+bool is_flat_shading = true;
 constexpr double MIN_DISTANCE = 3.5;
 
 void style() {
@@ -106,7 +106,7 @@ void Window::create_Window() {
     Rasterizer rasterizer;
     window.setFramerateLimit(60);
     float ambient = 0.25f;
-    gmath::Vector4d light_direction = {0.0f, 0.0f, 1.0f, 0.0f};
+    gmath::Vector4d light_direction = {1.0f, 1.0f, -1.0f, 0.0f};
 
     ImGui::SFML::Init(window);
     //Записываем значения объекта в переменные (просто для удобства. Можно убрать)
@@ -169,10 +169,11 @@ void Window::create_Window() {
             for (Object& object : scenes.at(chosen_scene)->objects3d) {
                 //object.transform.rotate({0, -0.01, -0.01});
                 //object.transform.translate({0, 0, 0.05f});
-
                 gmath::Matrix4d view_mat = scenes.at(chosen_scene)->camera.look_at();
                 gmath::Vector4d light_in_view = (view_mat * light_direction).normalized();
                 gmath::Vector3f light_dir_v = {(float)light_in_view.x, (float)light_in_view.y, (float)light_in_view.z};
+
+                //object.mesh.recompute_normals();
 
                 const auto processed_mesh = Render::process_mesh(
                     object.mesh,
@@ -183,11 +184,39 @@ void Window::create_Window() {
                     HEIGHT
                 );
 
-                rasterizer.draw_soft_shadow(
+                // Как загружать текстуру для модельки:
+                // if (!object.mesh.m_texture) {
+                //     object.mesh.m_texture = std::make_unique<Texture>();
+                // }
+                //
+                // if (!object.mesh.m_texture) {
+                //     std::cout << "Texture pointer is null!\n";
+                // }
+                //
+                // sf::Image image;
+                // if (!image.loadFromFile("C:/MainFolder/KGG_CPP_Project_Repo/resources/models/caracal_texture.png")) {
+                //     cout << "Failed to load img" << endl;
+                // }
+                // object.mesh.m_texture->width = image.getSize().x;
+                // object.mesh.m_texture->height = image.getSize().y;
+                // object.mesh.m_texture->channels = 4;
+                // object.mesh.m_texture->pixels.assign(image.getPixelsPtr(), image.getPixelsPtr() + object.mesh.m_texture->width * object.mesh.m_texture->height * 4);
+
+                std::vector<gmath::Vector3d> face_normals;
+                if (is_flat_shading) {
+                    face_normals = renderer.process_face_normals(
+                        object.mesh.m_face_normals,
+                        object.transform.get_model_matrix(),
+                        scenes.at(chosen_scene)->camera.look_at()
+                        );
+                }
+
+                rasterizer.draw_scene(
                     fb,
                     processed_mesh,
+                    face_normals,
                     object.mesh.m_texture.get(),
-                    true,
+                    is_flat_shading,
                     light_dir_v,
                     ambient,
                     Color::yellow()
@@ -196,7 +225,6 @@ void Window::create_Window() {
                 // rasterizer.draw_wireframe(
                 //     fb,
                 //     processed_mesh,
-                //     object.mesh.m_faces,
                 //     Color::black()
                 // );
             }

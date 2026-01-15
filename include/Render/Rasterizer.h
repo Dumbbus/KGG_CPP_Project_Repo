@@ -16,14 +16,15 @@
 namespace render {
     class Rasterizer {
     public:
-        void draw_soft_shadow(
+        void draw_scene(
             Framebuffer &fb,
             const std::vector<ProcessedVertex> &triangles,
+            std::vector<gmath::Vector3d>& face_normals,
             const Texture* texture,
             const bool use_face_normals,
             const gmath::Vector3f& light_direction,
             const float ambient,
-            const Color &base_color
+            const Color &color
         );
 
         void draw_wireframe(
@@ -33,25 +34,6 @@ namespace render {
             );
 
     private:
-        void draw_scene(
-            const std::vector<std::vector<int>>& faces,
-            const std::vector<gmath::Vector3d>& screen_coords,
-            Framebuffer& fb,
-            const Color& color
-        );
-
-        void draw_scene_soft_shadow(
-            const std::vector<std::vector<int>> &faces,
-            const std::vector<ProcessedVertex> &processed_vertices,
-            const gmath::Vector3f& light_direction,
-            const Texture* texture,
-            const std::vector<gmath::Vector3d> &face_normals,
-            const bool use_face_normals,
-            const float ambient,
-            Framebuffer &fb,
-            const Color &color
-        );
-
         void draw_colored_triangle(
             Framebuffer& framebuffer,
             const gmath::Vector3<float> a,

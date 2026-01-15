@@ -17,7 +17,6 @@ namespace render {
         return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
     }
 
-    // По алгоритму Брезенхема
     static void draw_3d_line(
         Framebuffer& fb,
         const gmath::Vector3<float>& a,
@@ -187,37 +186,14 @@ namespace render {
     }
 
     void Rasterizer::draw_scene(
-        const std::vector<std::vector<int>>& faces,
-        const std::vector<gmath::Vector3d>& screen_coords,
-        Framebuffer& fb,
-        const Color& color
-    ) {
-        size_t face_index = 1;
-        for (std::vector<int> face : faces) {
-            // TEMPORARY
-            Color face_color(face_index * 45, face_index * 77, face_index * 123);
-
-            int index_0 = face[0];
-            int index_1 = face[1];
-            int index_2 = face[2];
-
-            gmath::Vector3f v0 = {(float)screen_coords[index_0].x, (float)screen_coords[index_0].y, (float)screen_coords[index_0].z};
-            gmath::Vector3f v1 = {(float)screen_coords[index_1].x, (float)screen_coords[index_1].y, (float)screen_coords[index_1].z};
-            gmath::Vector3f v2 = {(float)screen_coords[index_2].x, (float)screen_coords[index_2].y, (float)screen_coords[index_2].z};
-
-            draw_colored_triangle(fb, v0, v1, v2, face_color, face_color, face_color);
-            face_index++;
-        }
-    }
-
-    void Rasterizer::draw_soft_shadow(
         Framebuffer &fb,
         const std::vector<ProcessedVertex> &triangles,
+        std::vector<gmath::Vector3d>& face_normals,
         const Texture* texture,
         const bool use_face_normals,
         const gmath::Vector3f& light_direction,
         const float ambient,
-        const Color &base_color
+        const Color &color
         ) {
         for (size_t i = 0; i + 2 < triangles.size(); i += 3) {
 
@@ -231,13 +207,15 @@ namespace render {
             gmath::Vector3f normal_0, normal_1, normal_2;
 
             if (use_face_normals) {
-                gmath::Vector3f face_normal = (
-                    gmath::Vector3f((float)pv0.normal.x, (float)pv0.normal.y, (float)pv0.normal.z) +
-                    gmath::Vector3f((float)pv1.normal.x, (float)pv1.normal.y, (float)pv1.normal.z) +
-                    gmath::Vector3f((float)pv2.normal.x, (float)pv2.normal.y, (float)pv2.normal.z)
-                ).normalized();
+                size_t face_index = i / 3;
 
-                std::cout << "Face normal: " << face_normal << std::endl;
+                const gmath::Vector3d& fn = face_normals[face_index];
+
+                gmath::Vector3f face_normal(
+                    static_cast<float>(fn.x),
+                    static_cast<float>(fn.y),
+                    static_cast<float>(fn.z)
+                );
 
                 normal_0 = normal_1 = normal_2 = face_normal;
             } else {
@@ -271,7 +249,7 @@ namespace render {
                 texture,
                 light_direction,
                 ambient,
-                base_color
+                color
             );
         }
     }

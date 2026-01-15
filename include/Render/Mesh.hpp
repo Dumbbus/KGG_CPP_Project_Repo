@@ -16,11 +16,11 @@ struct Vertex {
     gmath::Vector2<double> uv;
 };
 
-// TODO: добавить поле атрибута для цвета? UV-коорды (на потом)
 class Mesh {
     public:
         std::vector<gmath::Vector3d> m_vertexs;
         std::vector<gmath::Vector3d> m_normals;
+        std::vector<gmath::Vector3d> m_face_normals; // Не заполнять ридером, высчитывается отдельно
         std::vector<gmath::Vector2d> m_uvs;
         std::vector<Polygon> m_polygons;
         std::shared_ptr<Texture> m_texture;
