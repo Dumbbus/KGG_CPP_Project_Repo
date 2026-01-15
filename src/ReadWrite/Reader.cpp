@@ -26,15 +26,14 @@ std::vector<std::string> splitWithEmpty(const std::string& s, char delimiter) {
 }
 
 Object Reader::Read(const std::string filename) {
-    bool dull_flag = false;
-    bool normal_flag = false;
-    bool uv_flag = false;
+    bool are_normals_present = true;
+    bool is_default_uv_needed = true;
     char delim = '/';
     Object object3d;
     ifstream file(filename);
     string line;
     while (getline(file, line)) {
-        cout << line << endl;
+        //cout << line << endl;
         std::stringstream stringstream(line);
         std::string word;
         stringstream >> word;
@@ -60,35 +59,33 @@ Object Reader::Read(const std::string filename) {
                 cout << s << endl;
                 std::vector<std::string> result = splitWithEmpty(s, delim);
                 face.emplace_back(std::stoi(result[0])-1);
-                if (result.size() == 1) {
-                    dull_flag = true;
-                }
-                if (result.size() == 2) {
-                    uv_flag = true;
-                    textIndicies.emplace_back(std::stoi(result[1])-1);
-                }
-                if (result.size() == 3) {
-                    uv_flag = true;
-                    normal_flag = true;
-                    if (!dull_flag) {
+                switch (result.size()) {
+                    case 1:
+                        are_normals_present = false;
+                    case 2:
+                        are_normals_present = false;
+                        is_default_uv_needed = false;
+                        textIndicies.emplace_back(std::stoi(result[1])-1);
+                        break;
+                    case 3:
                         if (result[1] != "") {
                             textIndicies.emplace_back(std::stoi(result[1])-1);
+                            normal.emplace_back(std::stoi(result[2])-1);
+                            is_default_uv_needed = false;
+                        } else {
+                            is_default_uv_needed = true;
+                            normal.emplace_back(std::stoi(result[2])-1);
                         }
-                        else {
-                            dull_flag = true;
-                        }
-                    }
-                    normal.emplace_back(std::stoi(result[2])-1);
                 }
             }
             try {
                 if (face.size() < 3) {
                     throw invalid_argument("Face " + to_string(face_count) + " has less tan 3 vertecies");
                 }
-                if (normal_flag && normal.size() < 3) {
+                if (are_normals_present && normal.size() < 3) {
                     throw invalid_argument("Normal " + to_string(normal_count) + " has less tan 3 vertecies");
                 }
-                if (uv_flag && textIndicies.size() < 3) {
+                if (!is_default_uv_needed && textIndicies.size() < 3) {
                     throw invalid_argument("TextureFace " + to_string(texture_count) + " has less tan 3 vertecies");
                 }
             }
@@ -125,7 +122,7 @@ Object Reader::Read(const std::string filename) {
             object3d.mesh.m_uvs.emplace_back(vertex);
         }
     }
-    if (dull_flag) {
+    if (is_default_uv_needed) {
         object3d.mesh.set_dull_uv();
     }
     object3d.mesh.recompute_normals();
