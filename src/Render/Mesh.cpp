@@ -28,3 +28,15 @@ void Mesh::recompute_normals() {
     m_face_normals = normal_calculator.get_face_normals();
     m_normals = normal_calculator.get_vertex_normals();
 }
+
+void Mesh::set_dull_uv() {
+    if (!m_uvs.empty()) {
+        return;
+    }
+
+    m_uvs.emplace_back(0.0, 0.0);
+    for (auto& poly : m_polygons) {
+        std::vector<int> uvs(poly.get_vertexs().size(), 0);
+        poly.set_uvs(uvs);
+    }
+}

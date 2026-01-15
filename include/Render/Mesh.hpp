@@ -35,9 +35,12 @@ class Mesh {
             std::vector<gmath::Vector3d>& normals,
             std::vector<Polygon>& polygons,
             std::shared_ptr<Texture> texture = nullptr
-            ) : m_vertexs(vertices), m_normals(normals), m_polygons(polygons), m_texture(texture) {};
+            ) : m_vertexs(vertices), m_normals(normals), m_polygons(polygons), m_texture(texture) {
+            set_dull_uv();
+        };
 
         void recompute_normals();
+        void set_dull_uv();
 };
 
 
