@@ -50,8 +50,7 @@ namespace gmath {
             }
 
             void compute_vertex_normals(
-            const std::vector<std::vector<int>>& polygons,
-            const std::vector<Vector3<T>>& vertices
+            const std::vector<std::vector<int>>& polygons
             ) {
                 //vertex_normals.clear();
 

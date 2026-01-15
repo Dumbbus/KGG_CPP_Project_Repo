@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <complex>
+#include <iostream>
 
 namespace render {
     static float edge(
@@ -16,7 +17,6 @@ namespace render {
         return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
     }
 
-    // По алгоритму Брезенхема
     static void draw_3d_line(
         Framebuffer& fb,
         const gmath::Vector3<float>& a,
@@ -185,157 +185,88 @@ namespace render {
         }
     }
 
-    void Rasterizer::draw_shape(
-        Framebuffer &fb,
-        const std::vector<gmath::Vector3d>& screen_coords,
-        const std::vector<std::vector<int>>& faces,
-        const Color& color = Color::white() // По стандарту будет белым
-    ) {
-        draw_scene(faces, screen_coords, fb, color);
-    }
-
     void Rasterizer::draw_scene(
-        const std::vector<std::vector<int>>& faces,
-        const std::vector<gmath::Vector3d>& screen_coords,
-        Framebuffer& fb,
-        const Color& color
-    ) {
-        size_t face_index = 1;
-        for (std::vector<int> face : faces) {
-            // TEMPORARY
-            Color face_color(face_index * 45, face_index * 77, face_index * 123);
-
-            int index_0 = face[0];
-            int index_1 = face[1];
-            int index_2 = face[2];
-
-            gmath::Vector3f v0 = {(float)screen_coords[index_0].x, (float)screen_coords[index_0].y, (float)screen_coords[index_0].z};
-            gmath::Vector3f v1 = {(float)screen_coords[index_1].x, (float)screen_coords[index_1].y, (float)screen_coords[index_1].z};
-            gmath::Vector3f v2 = {(float)screen_coords[index_2].x, (float)screen_coords[index_2].y, (float)screen_coords[index_2].z};
-
-            draw_colored_triangle(fb, v0, v1, v2, face_color, face_color, face_color);
-            face_index++;
-        }
-    }
-
-    void Rasterizer::draw_shape_soft_shadow(
         Framebuffer &fb,
-        const std::vector<ProcessedVertex> &processed_vertices,
-        const std::vector<std::vector<int> > &faces,
-        const std::vector<gmath::Vector3d>& face_normals,
+        const std::vector<ProcessedVertex> &triangles,
+        std::vector<gmath::Vector3d>& face_normals,
         const Texture* texture,
         const bool use_face_normals,
         const gmath::Vector3f& light_direction,
         const float ambient,
-        const Color &base_color
-        ) {
-        draw_scene_soft_shadow(
-            faces,
-            processed_vertices,
-            light_direction,
-            texture,
-            face_normals,
-            use_face_normals,
-            ambient,
-            fb,
-            base_color
-            );
-    }
-
-    void Rasterizer::draw_scene_soft_shadow(
-        const std::vector<std::vector<int>>& faces,
-        const std::vector<ProcessedVertex>& processed_vertices,
-        const gmath::Vector3f& light_direction,
-        const Texture* texture,
-        const std::vector<gmath::Vector3d>& face_normals,
-        const bool use_face_normals,
-        const float ambient,
-        Framebuffer &fb,
         const Color &color
-    ) {
-        //gmath::Vector3f light_direction(0.0f, 1.0f, 1.0f);
-        //light_direction.normalize();
+        ) {
+        for (size_t i = 0; i + 2 < triangles.size(); i += 3) {
 
-        for (size_t i = 0; i < faces.size(); ++i) {
-            const auto& face = faces[i];
-            const int index_0 = face[0];
-            const int index_1 = face[1];
-            const int index_2 = face[2];
+            const auto& pv0 = triangles[i + 0];
+            const auto& pv1 = triangles[i + 1];
+            const auto& pv2 = triangles[i + 2];
 
-            const auto& pv0 = processed_vertices[index_0];
-            const auto& pv1 = processed_vertices[index_1];
-            const auto& pv2 = processed_vertices[index_2];
-
-            // Отсекаем треугольники, слишком близкие или вышедшие за камеру
-            if (!pv0.valid || !pv1.valid || !pv2.valid) {
+            if (!pv0.valid || !pv1.valid || !pv2.valid)
                 continue;
-            }
 
-            const gmath::Vector3f v0 ={(float)pv0.position.x, (float)pv0.position.y, (float)pv0.position.z};
-            const gmath::Vector3f v1 ={(float)pv1.position.x, (float)pv1.position.y, (float)pv1.position.z};
-            const gmath::Vector3f v2 ={(float)pv2.position.x, (float)pv2.position.y, (float)pv2.position.z};
-
-            const gmath::Vector2f uv0 = {(float)pv0.uv.x, (float)pv0.uv.y};
-            const gmath::Vector2f uv1 = {(float)pv1.uv.x, (float)pv1.uv.y};
-            const gmath::Vector2f uv2 = {(float)pv2.uv.x, (float)pv2.uv.y};
-
-            gmath::Vector3f normal_0;
-            gmath::Vector3f normal_1;
-            gmath::Vector3f normal_2;
+            gmath::Vector3f normal_0, normal_1, normal_2;
 
             if (use_face_normals) {
-                const auto& face_normal = face_normals[i];
-                gmath::Vector3f flat_normal = {(float)face_normal.x, (float)face_normal.y, (float)face_normal.z};
-                flat_normal.normalize();
-                normal_0 = flat_normal;
-                normal_1 = flat_normal;
-                normal_2 = flat_normal;
+                size_t face_index = i / 3;
+
+                const gmath::Vector3d& fn = face_normals[face_index];
+
+                gmath::Vector3f face_normal(
+                    static_cast<float>(fn.x),
+                    static_cast<float>(fn.y),
+                    static_cast<float>(fn.z)
+                );
+
+                normal_0 = normal_1 = normal_2 = face_normal;
             } else {
                 normal_0 = {(float)pv0.normal.x, (float)pv0.normal.y, (float)pv0.normal.z};
                 normal_1 = {(float)pv1.normal.x, (float)pv1.normal.y, (float)pv1.normal.z};
                 normal_2 = {(float)pv2.normal.x, (float)pv2.normal.y, (float)pv2.normal.z};
-
-                normal_0.normalize();
-                normal_1.normalize();
-                normal_2.normalize();
             }
+
+            gmath::Vector3f pos0f(pv0.position.x, pv0.position.y, pv0.position.z);
+            gmath::Vector3f pos1f(pv1.position.x, pv1.position.y, pv1.position.z);
+            gmath::Vector3f pos2f(pv2.position.x, pv2.position.y, pv2.position.z);
+
+            gmath::Vector2f uv0f(pv0.uv.x, pv0.uv.y);
+            gmath::Vector2f uv1f(pv1.uv.x, pv1.uv.y);
+            gmath::Vector2f uv2f(pv2.uv.x, pv2.uv.y);
 
             draw_phong_triangle(
                 fb,
-                v0,
-                v1,
-                v2,
+                pos0f,
+                pos1f,
+                pos2f,
                 normal_0,
                 normal_1,
                 normal_2,
-                uv0,
-                uv1,
-                uv2,
-                pv0.inv_w,
-                pv1.inv_w,
-                pv2.inv_w,
+                uv0f,
+                uv1f,
+                uv2f,
+                static_cast<float>(pv0.inv_w),
+                static_cast<float>(pv1.inv_w),
+                static_cast<float>(pv2.inv_w),
                 texture,
                 light_direction,
                 ambient,
                 color
-                );
+            );
         }
     }
 
     void Rasterizer::draw_wireframe(
         Framebuffer& fb,
-        const std::vector<ProcessedVertex> &screen_coords,
-        const std::vector<std::vector<int>> &faces,
+        const std::vector<ProcessedVertex> &triangles,
         const Color &color
         ) {
-        for (const std::vector<int> &face : faces) {
-            const int index_0 = face[0];
-            const int index_1 = face[1];
-            const int index_2 = face[2];
+        for (size_t i = 0; i + 2 < triangles.size(); i += 3) {
 
-            const auto& pv0 = screen_coords[index_0];
-            const auto& pv1 = screen_coords[index_1];
-            const auto& pv2 = screen_coords[index_2];
+            const auto& pv0 = triangles[i + 0];
+            const auto& pv1 = triangles[i + 1];
+            const auto& pv2 = triangles[i + 2];
+
+            if (!pv0.valid || !pv1.valid || !pv2.valid)
+                continue;
 
             gmath::Vector3f v0 = {
                 (float)pv0.position.x,
@@ -352,10 +283,6 @@ namespace render {
                 (float)pv2.position.y,
                 (float)pv2.position.z
             };
-
-            if (!pv0.valid || !pv1.valid || !pv2.valid) {
-                continue;
-            }
 
             draw_only_lined_triangle(fb, v0, v1, v2, color);
         }
