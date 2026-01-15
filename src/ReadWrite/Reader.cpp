@@ -26,6 +26,9 @@ std::vector<std::string> splitWithEmpty(const std::string& s, char delimiter) {
 }
 
 Object Reader::Read(const std::string filename) {
+    bool dull_flag = false;
+    bool normal_flag = false;
+    bool uv_flag = false;
     char delim = '/';
     Object object3d;
     ifstream file(filename);
@@ -55,19 +58,37 @@ Object Reader::Read(const std::string filename) {
                 normal_count++;
                 texture_count++;
                 cout << s << endl;
-                std::vector<std::string> result = splitWithEmpty(s, '/');
+                std::vector<std::string> result = splitWithEmpty(s, delim);
                 face.emplace_back(std::stoi(result[0]));
-                textIndicies.emplace_back(std::stoi(result.size() < 2? "0" : result[1]));
-                normal.emplace_back(std::stoi(result.size() < 3 ? "0" : result[2]));
+                if (result.size() == 1) {
+                    dull_flag = true;
+                }
+                if (result.size() == 2) {
+                    uv_flag = true;
+                    textIndicies.emplace_back(std::stoi(result[1]));
+                }
+                if (result.size() == 3) {
+                    uv_flag = true;
+                    normal_flag = true;
+                    if (!dull_flag) {
+                        if (result[1] != "") {
+                            textIndicies.emplace_back(std::stoi(result[1]));
+                        }
+                        else {
+                            dull_flag = true;
+                        }
+                    }
+                    normal.emplace_back(std::stoi(result[2]));
+                }
             }
             try {
                 if (face.size() < 3) {
                     throw invalid_argument("Face " + to_string(face_count) + " has less tan 3 vertecies");
                 }
-                if (normal.size() < 3) {
+                if (normal_flag && normal.size() < 3) {
                     throw invalid_argument("Normal " + to_string(normal_count) + " has less tan 3 vertecies");
                 }
-                if (textIndicies.size() < 3) {
+                if (uv_flag && textIndicies.size() < 3) {
                     throw invalid_argument("TextureFace " + to_string(texture_count) + " has less tan 3 vertecies");
                 }
             }
