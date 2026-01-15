@@ -4,17 +4,13 @@
 
 #ifndef KGG_CPP_PROJECT_REPO_MESH_H
 #define KGG_CPP_PROJECT_REPO_MESH_H
+#include <memory>
+
 #include "Math/Vector3.hpp"
 #include <vector>
 #include "Math/Vector2.hpp"
 #include "Render/Texture.hpp"
 #include "Render/Polygon.hpp"
-
-struct Vertex {
-    gmath::Vector3<double> position;
-    gmath::Vector3<double> normal;
-    gmath::Vector2<double> uv;
-};
 
 class Mesh {
     public:
