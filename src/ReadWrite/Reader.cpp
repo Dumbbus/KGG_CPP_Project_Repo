@@ -41,7 +41,7 @@ Object Reader::Read(const std::string filename) {
         if (word == "v") {
             double x, y, z;
             stringstream >> x >> y >> z;
-            gmath::Vector3<double> vertex = {x, y, z};
+            gmath::Vector3<double> vertex = {x-1, y-1, z-1};
             object3d.mesh.m_vertexs.emplace_back(vertex);
         }
         else if (word == "f") {
@@ -59,26 +59,26 @@ Object Reader::Read(const std::string filename) {
                 texture_count++;
                 cout << s << endl;
                 std::vector<std::string> result = splitWithEmpty(s, delim);
-                face.emplace_back(std::stoi(result[0]));
+                face.emplace_back(std::stoi(result[0])-1);
                 if (result.size() == 1) {
                     dull_flag = true;
                 }
                 if (result.size() == 2) {
                     uv_flag = true;
-                    textIndicies.emplace_back(std::stoi(result[1]));
+                    textIndicies.emplace_back(std::stoi(result[1])-1);
                 }
                 if (result.size() == 3) {
                     uv_flag = true;
                     normal_flag = true;
                     if (!dull_flag) {
                         if (result[1] != "") {
-                            textIndicies.emplace_back(std::stoi(result[1]));
+                            textIndicies.emplace_back(std::stoi(result[1])-1);
                         }
                         else {
                             dull_flag = true;
                         }
                     }
-                    normal.emplace_back(std::stoi(result[2]));
+                    normal.emplace_back(std::stoi(result[2])-1);
                 }
             }
             try {
