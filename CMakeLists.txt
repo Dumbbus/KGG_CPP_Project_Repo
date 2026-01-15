@@ -37,6 +37,7 @@ add_library(imgui STATIC
         ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
         include/Render/Texture.hpp
+        include/Render/Polygon.hpp
 )
 FetchContent_Declare(
         ImGuiFileDialog

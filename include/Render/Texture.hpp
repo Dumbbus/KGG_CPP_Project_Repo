@@ -20,7 +20,6 @@ struct Texture {
     }
 
     render::Color sample(float u, float v) const;
-    bool load_texture(const char* filename, Texture& texture);
 };
 
 #endif //KGG_CPP_PROJECT_REPO_TEXTURE_HPP

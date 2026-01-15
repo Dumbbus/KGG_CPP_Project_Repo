@@ -4,6 +4,8 @@
 
 #include "Render/Texture.hpp"
 
+#include <SFML/Graphics/Image.hpp>
+
 render::Color Texture::sample(float u, float v) const {
     if (pixels.empty()) {
         return render::Color::white();

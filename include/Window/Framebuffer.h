@@ -20,6 +20,10 @@ namespace render {
 
             void set_pixel(int x, int y, const Color& color, float depth);
 
+            void update_size(uint32_t width, uint32_t height) {
+                m_width = width;
+                m_height = height;
+            };
             [[nodiscard]] const uint8_t* get_data() const;
             [[nodiscard]] uint32_t  get_width() const;
             [[nodiscard]] uint32_t  get_height() const;
