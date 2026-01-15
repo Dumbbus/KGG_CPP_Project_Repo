@@ -9,7 +9,7 @@
 
 class Reader {
 public:
-    Object Read(const std::string filename);
+    Object Read(const std::string& filename);
 };
 
 
