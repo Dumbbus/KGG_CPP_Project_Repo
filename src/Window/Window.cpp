@@ -55,8 +55,9 @@ void loadTextures(Object& object) {
         }
 
         sf::Image image;
-
-        if (!image.loadFromFile("./resources/models/caracal_texture.png")) {
+//NeutralWrapped.jpg
+    //caracal_texture.png
+        if (!image.loadFromFile("./resources/models/NeutralWrapped.jpg")) {
             cout << "Failed to load img" << endl;
         }
 

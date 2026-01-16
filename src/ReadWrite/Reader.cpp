@@ -63,11 +63,14 @@ Object Reader::Read(const std::string filename) {
                 switch (result.size()) {
                     case 1:
                         are_normals_present = false;
+                        textIndicies.emplace_back(-1);
+                        normal.emplace_back(-1);
                         break;
                     case 2:
                         are_normals_present = false;
                         is_default_uv_needed = false;
                         textIndicies.emplace_back(std::stoi(result[1])-1);
+                        normal.emplace_back(-1);
                         break;
                     case 3:
                         if (result[1] != "") {
