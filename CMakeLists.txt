@@ -89,6 +89,7 @@ add_library(kgg_core
 
         src/ReadWrite/Reader.cpp
         src/ReadWrite/Object.cpp
+        src/ReadWrite/Write.cpp
 
         src/Window/Framebuffer.cpp
         src/Window/Window.cpp
