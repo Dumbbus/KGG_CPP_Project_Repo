@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <Normal.hpp>
+#include <Light/Normal.hpp>
 #include <Math/Vector3.hpp>
 
 using namespace gmath;
@@ -90,7 +90,7 @@ TEST(NormalTests, ComputesVertexNormalsCorrectly) {
     Normal<float> n(vertices.size(), polys.size());
 
     n.compute_face_normals(polys, vertices);
-    n.compute_vertex_normals(polys, vertices);
+    n.compute_vertex_normals(polys);
 
     const auto& vn = n.get_vertex_normals();
     Vector3f expected(0.f, 0.f, 1.f);
@@ -120,7 +120,7 @@ TEST(NormalTests, VertexNormalsAccumulateMultipleFaces) {
     Normal<float> n(vertices.size(), polys.size());
 
     n.compute_face_normals(polys, vertices);
-    n.compute_vertex_normals(polys, vertices);
+    n.compute_vertex_normals(polys);
 
     const auto& vn = n.get_vertex_normals();
     Vector3f expected(0.f, 0.f, 1.f);

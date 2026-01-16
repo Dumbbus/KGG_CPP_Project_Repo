@@ -4,8 +4,6 @@
 #include <SFML/Graphics.hpp>
 #include "imgui-SFML.h"
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 #include "ImGuiFileDialog.h"
 #include "ReadWrite/Object.hpp"
 #include "ReadWrite/Reader.h"
