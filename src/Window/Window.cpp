@@ -24,12 +24,51 @@ vector<Scene*> scenes;//Vector of pointers to scenes
 Reader reader;
 //Viewport viewport{(double) HEIGHT, (double) WIDTH};
 Render renderer;
+Object* pointer_to_object;
+vector<Object*> objects_for_rotation;
 int chosen_scene = 0;
 int chosen_object = 0;
-gmath::Vector3<double> kfkd = {0, 0, -5};
+int chosen_polygon = 0;
 bool is_flat_shading = true;
+bool SCENE_SELECTER = false;
+bool OBJECT_SELECTOR = false;
+bool EDITOR = false;
+
 constexpr double MIN_DISTANCE = 3.5;
 
+std::string getOSName() {
+    #ifdef _WIN32
+    return "Windows 32-bit";
+    #elif _WIN64
+    return "Windows 64-bit";
+    #elif __linux__
+    return "Linux";
+    #endif
+}
+void loadTextures(Object& object) {
+        if (!object.mesh.m_texture) {
+             object.mesh.m_texture = std::make_unique<Texture>();
+        }
+        if (!object.mesh.m_texture) {
+            std::cout << "Texture pointer is null!\n";
+        }
+
+        sf::Image image;
+        if (getOSName() == "Windows 32-bit" || getOSName() == "Windows 64-bit") {
+            if (!image.loadFromFile("C:/MainFolder/KGG_CPP_Project_Repo/resources/models/caracal_texture.png")) {
+                cout << "Failed to load img" << endl;
+            }
+        }
+        else if (getOSName() == "Linux") {
+            if (!image.loadFromFile("resources/models/caracal_texture.png")) {
+                cout << "Failed to load img" << endl;
+            }
+        }
+        object.mesh.m_texture->width = image.getSize().x;
+        object.mesh.m_texture->height = image.getSize().y;
+        object.mesh.m_texture->channels = 4;
+        object.mesh.m_texture->pixels.assign(image.getPixelsPtr(), image.getPixelsPtr() + object.mesh.m_texture->width * object.mesh.m_texture->height * 4);
+}
 void style() {
     ImVec4* colors = ImGui::GetStyle().Colors;
 colors[ImGuiCol_Text]                   = ImVec4(0.90f, 0.90f, 0.90f, 1.00f);
@@ -89,13 +128,29 @@ colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
-
+void errase(Object* object) {
+    Object* object_delete = object;
+    auto& objects = scenes.at(chosen_scene)->objects3d;
+    auto find_for_deletion = std::find_if(objects.begin(), objects.end(),
+    [object_delete](const Object& obj) {
+      return &obj == object_delete;  // Compare addresses
+        });
+    objects.erase(find_for_deletion);
+}
+void menues_pos(sf::RenderWindow& window, int indent) {
+    ImGui::SetNextWindowPos(ImVec2(window.getSize().x/6 * indent, 19));
+    ImGui::SetNextWindowSize(ImVec2(window.getSize().x/6, window.getSize().y - 19));
+}
+struct {
+    double x = 0;
+    double y = 0;
+    double z = 0;
+}pos_for_editor;
 void Window::create_Window() {
     Camera camera({0, 0, 0}, {0, 0, -5}, {0, 1, 0});
     Projection projection(90.0, (double) WIDTH / HEIGHT, 0.35, 100.0);
     //здесь создаётся сцена, в будующем можно создать ещё
     scenes.push_back(new Scene(camera, projection));
-
     sf::RenderWindow window(
     sf::VideoMode({WIDTH, HEIGHT}), "3dViewer");
     Framebuffer fb(WIDTH, HEIGHT);
@@ -107,8 +162,9 @@ void Window::create_Window() {
     gmath::Vector4d light_direction = {1.0f, 1.0f, -1.0f, 0.0f};
 
     ImGui::SFML::Init(window);
-    //Записываем значения объекта в переменные (просто для удобства. Можно убрать)
+
     sf::Clock deltaClock;
+
 
     while (window.isOpen()) {
         while (auto event = window.pollEvent()) {
@@ -165,8 +221,7 @@ void Window::create_Window() {
         //scene drawing
         if (scenes.at(chosen_scene)->objects3d.size() != 0) {
             for (Object& object : scenes.at(chosen_scene)->objects3d) {
-                //object.transform.rotate({0, -0.01, -0.01});
-                //object.transform.translate({0, 0, 0.05f});
+
                 gmath::Matrix4d view_mat = scenes.at(chosen_scene)->camera.look_at();
                 gmath::Vector4d light_in_view = (view_mat * light_direction).normalized();
                 gmath::Vector3f light_dir_v = {(float)light_in_view.x, (float)light_in_view.y, (float)light_in_view.z};
@@ -182,23 +237,9 @@ void Window::create_Window() {
                     HEIGHT
                 );
 
-                // Как загружать текстуру для модельки:
-                // if (!object.mesh.m_texture) {
-                //     object.mesh.m_texture = std::make_unique<Texture>();
-                // }
-                //
-                // if (!object.mesh.m_texture) {
-                //     std::cout << "Texture pointer is null!\n";
-                // }
-                //
-                // sf::Image image;
-                // if (!image.loadFromFile("C:/MainFolder/KGG_CPP_Project_Repo/resources/models/caracal_texture.png")) {
-                //     cout << "Failed to load img" << endl;
-                // }
-                // object.mesh.m_texture->width = image.getSize().x;
-                // object.mesh.m_texture->height = image.getSize().y;
-                // object.mesh.m_texture->channels = 4;
-                // object.mesh.m_texture->pixels.assign(image.getPixelsPtr(), image.getPixelsPtr() + object.mesh.m_texture->width * object.mesh.m_texture->height * 4);
+                if (!object.mesh.m_texture) {
+                    loadTextures(object);
+                }
 
                 std::vector<gmath::Vector3d> face_normals;
                 if (is_flat_shading) {
@@ -226,6 +267,9 @@ void Window::create_Window() {
                 //     Color::black()
                 // );
             }
+            for (Object* object : objects_for_rotation) {
+                object->transform.rotate({0, 0.1, 0});
+            }
         }
         ImGui::SFML::Update(window, deltaClock.restart());
         //
@@ -241,38 +285,122 @@ void Window::create_Window() {
                 if (ImGui::MenuItem("Create")) {
 
                 }
+                if (ImGui::MenuItem("Scene")) {
+                    SCENE_SELECTER = true;
+                }
+                if (ImGui::MenuItem("Edit")) {
+                    OBJECT_SELECTOR = true;
+                }
                 if (ImGui::MenuItem("Open", "Ctrl+O")) {
                     IGFD::FileDialogConfig config;
                     config.path = ".";
                     config.filePathName = "/home/lunarimoonlin/KGG_CPP_Project_Repo/resources/models/";
-                    ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
+                    ImGui::SetNextWindowSize(ImVec2(400, 500), ImGuiCond_FirstUseEver);
                     ImGuiFileDialog::Instance()->OpenDialog(
                         "FileChooser", "File Explorer",
                         ".obj", config);
                 }
-                if (ImGui::MenuItem("Scene", "Alt+S")) {
-
-                }
                 if (ImGui::MenuItem("Save", "Ctrl+S")) {
+
                 }
                 if (ImGui::MenuItem("Save as..")) {
                 }
                 ImGui::EndMenu();
             }
             ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
             ImGui::EndMainMenuBar();
         }
-        //Menu end
-        ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_FirstUseEver);
-        if (ImGui::Begin("My First ImGui Window")) {
-            // 2. Add content inside the window
-            ImGui::Text("Hello, world!");
-            if (ImGui::Button("Click Me"))
+        //menu end
+        //scene menu start
+        if (SCENE_SELECTER) {
+
+            menues_pos(window,0);
+            ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+
+            if (ImGui::Button("Create scene"))
             {
-                // Handle button click logic here
+                scenes.emplace_back(new Scene(camera, projection));
+            }
+
+            for (int i = 0; i < scenes.size(); i++){
+                if (ImGui::Button(("Scene" + std::to_string(i)).c_str()))
+                {
+                    chosen_scene = i;
+                }
+            }
+            if (ImGui::Button("Close"))
+            {
+                SCENE_SELECTER = false;
             }
             ImGui::End();
         }
+        //scene menu end
+        //other menues
+        if (OBJECT_SELECTOR) {
+            if (SCENE_SELECTER) {
+                menues_pos(window, 1);
+            }
+            else {
+                menues_pos(window, 0);
+            }
+            int i = 0;
+            ImGui::Begin("f", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+            for (Object& object : scenes.at(chosen_scene)->objects3d) {
+                ImGui::PushID(i);
+                ImGui::Text(object.name.c_str());
+                if (ImGui::Button("Delete")) {
+                    errase(&object);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Edit")) {
+                    OBJECT_SELECTOR = false;
+                    EDITOR = true;
+                    pointer_to_object = &object;
+                }
+                ImGui::PopID();
+                i++;
+            }
+            if (ImGui::Button("Close")) {
+                OBJECT_SELECTOR = false;
+            }
+            ImGui::End();
+        }
+        if (EDITOR) {
+
+            if (SCENE_SELECTER) {
+                menues_pos(window, 1);
+            }
+            else {
+                menues_pos(window, 0);
+            }
+            ImGui::Begin("f", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
+            if (ImGui::InputInt("Delete poly", &chosen_polygon)) {
+                chosen_polygon = abs(chosen_polygon);
+                if (chosen_polygon > pointer_to_object->mesh.m_polygons.size()) {
+                    chosen_polygon = pointer_to_object->mesh.m_polygons.size();
+                }
+                pointer_to_object->mesh.m_polygons.erase(pointer_to_object->mesh.m_polygons.begin() + chosen_polygon);
+            }
+            if (ImGui::Button("Add poly")) {
+            }
+            if (ImGui::Button("Move whole")) {
+                gmath::Vector3<double> p(pos_for_editor.x, pos_for_editor.y, pos_for_editor.z);
+                pointer_to_object->transform.set_position(p);
+            }
+            ImGui::InputDouble("x", &pos_for_editor.x);
+            ImGui::InputDouble("y", &pos_for_editor.y);
+            ImGui::InputDouble("z", &pos_for_editor.z);
+            if (ImGui::Button("Make Rotate")) {
+                objects_for_rotation.emplace_back(pointer_to_object);
+            }
+            if (ImGui::Button("Close")) {
+                OBJECT_SELECTOR = true;
+                EDITOR = false;
+            }
+            ImGui::End();
+        }
+
 
 
         //File explorer instance processing
@@ -281,14 +409,11 @@ void Window::create_Window() {
         // V
         if (ImGuiFileDialog::Instance()->Display("FileChooser")) {
             if (ImGuiFileDialog::Instance()->IsOk()) {
+                gmath::Vector3<double> p(0, 0, -5);
                 std::string filePath = ImGuiFileDialog::Instance()->GetFilePathName();
                 // vec.at(n)->val == (*vec.at(n)).val
                 scenes.at(chosen_scene)->addObject3d(reader.Read(filePath));
-                scenes.at(chosen_scene)->objects3d.back().transform.set_position(kfkd);
-                scenes.at(chosen_scene)->objects3d.back().transform.rotate({0, -0.1, -0.1});
-                kfkd.x--;
-                kfkd.y--;
-                kfkd.z--;
+                scenes.at(chosen_scene)->objects3d.back().transform.set_position(p);
             }
             ImGuiFileDialog::Instance()->Close();
         }
@@ -303,3 +428,4 @@ void Window::create_Window() {
 
     ImGui::SFML::Shutdown();
 }
+

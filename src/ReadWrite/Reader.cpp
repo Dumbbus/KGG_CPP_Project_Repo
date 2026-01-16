@@ -3,6 +3,7 @@
 //
 #include "../../include/ReadWrite/Reader.h"
 #include <fstream>
+#include <filesystem>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -31,6 +32,8 @@ Object Reader::Read(const std::string filename) {
     Object object3d;
     ifstream file(filename);
     string line;
+    filesystem::path p (filename);
+    object3d.name = p.filename().string();
     while (getline(file, line)) {
         //cout << line << endl;
         std::stringstream stringstream(line);
