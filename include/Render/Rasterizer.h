@@ -4,13 +4,10 @@
 
 #ifndef KGG_CPP_PROJECT_REPO_RASTERIZER_H
 #define KGG_CPP_PROJECT_REPO_RASTERIZER_H
-#include "imgui.h"
 #include "Mesh.hpp"
 #include "Render.h"
 #include "Math/Vector2.hpp"
 #include "Math/Vector3.hpp"
-#include "../ReadWrite/Object.hpp"
-#include "SFML/Graphics/Color.hpp"
 #include "Window/Framebuffer.h"
 
 namespace render {

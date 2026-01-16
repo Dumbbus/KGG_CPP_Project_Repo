@@ -7,7 +7,6 @@
 #include "MConcepts.hpp"
 #include "Vector3.hpp"
 #include "Math/Vector4.hpp"
-#include "SFML/System/Vector3.hpp"
 
 namespace gmath {
 
