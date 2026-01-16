@@ -9,6 +9,7 @@
 #include "ImGuiFileDialog.h"
 #include "ReadWrite/Object.hpp"
 #include "ReadWrite/Reader.h"
+#include "ReadWrite/Write.h"
 #include "Render/Rasterizer.h"
 #include "Window/Framebuffer.h"
 #include "Scene/Camera.h"
@@ -56,16 +57,11 @@ void loadTextures(Object& object) {
         }
 
         sf::Image image;
-        if (getOSName() == "Windows 32-bit" || getOSName() == "Windows 64-bit") {
-            if (!image.loadFromFile("C:/MainFolder/KGG_CPP_Project_Repo/resources/models/caracal_texture.png")) {
-                cout << "Failed to load img" << endl;
-            }
+
+        if (!image.loadFromFile("./resources/models/caracal_texture.png")) {
+            cout << "Failed to load img" << endl;
         }
-        else if (getOSName() == "Linux") {
-            if (!image.loadFromFile("resources/models/caracal_texture.png")) {
-                cout << "Failed to load img" << endl;
-            }
-        }
+
         object.mesh.m_texture->width = image.getSize().x;
         object.mesh.m_texture->height = image.getSize().y;
         object.mesh.m_texture->channels = 4;
@@ -284,9 +280,6 @@ void Window::create_Window() {
         //Menu begin
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("File")) {
-                if (ImGui::MenuItem("Create")) {
-
-                }
                 if (ImGui::MenuItem("Scene")) {
                     SCENE_SELECTER = true;
                 }
@@ -302,11 +295,7 @@ void Window::create_Window() {
                         "FileChooser", "File Explorer",
                         ".obj", config);
                 }
-                if (ImGui::MenuItem("Save", "Ctrl+S")) {
 
-                }
-                if (ImGui::MenuItem("Save as..")) {
-                }
                 ImGui::EndMenu();
             }
             ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
@@ -395,6 +384,9 @@ void Window::create_Window() {
             ImGui::InputDouble("z", &pos_for_editor.z);
             if (ImGui::Button("Make Rotate")) {
                 objects_for_rotation.emplace_back(pointer_to_object);
+            }
+            if (ImGui::Button("Save")) {
+                Write::write(*pointer_to_object);
             }
             if (ImGui::Button("Close")) {
                 OBJECT_SELECTOR = true;

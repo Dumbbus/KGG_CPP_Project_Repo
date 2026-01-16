@@ -10,10 +10,10 @@
 #include <vector>
 #include <ReadWrite/Object.hpp>
 using namespace std;
-std::vector<std::string> splitWithEmpty(const std::string& s, char delimiter) {
-    std::vector<std::string> tokens;
-    std::string token;
-    std::istringstream tokenStream(s);
+vector<std::string> splitWithEmpty(const std::string& s, char delimiter) {
+    vector<std::string> tokens;
+    string token;
+    istringstream tokenStream(s);
     // Use getline to capture empty tokens
     while (std::getline(tokenStream, token, delimiter)) {
         tokens.push_back(token);
