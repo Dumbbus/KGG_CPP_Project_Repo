@@ -104,6 +104,8 @@ add_executable(KGG_CPP_Project_Repo
         src/ReadWrite/Reader.cpp
         src/Scene/Scene.cpp
         src/Render/Texture.cpp
+        src/ReadWrite/Write.cpp
+        include/ReadWrite/Write.h
 )
 
 target_include_directories(KGG_CPP_Project_Repo

@@ -8,6 +8,7 @@
 using namespace render;
     class Object {
     public:
+        std::string name;
         Mesh mesh;
         Transform transform;
         Object() = default;
