@@ -1,0 +1,8 @@
+//
+// Created by akemi on 17.01.2026.
+//
+
+#ifndef KGG_CPP_PROJECT_REPO_LIGHT_POINT_H
+#define KGG_CPP_PROJECT_REPO_LIGHT_POINT_H
+
+#endif //KGG_CPP_PROJECT_REPO_LIGHT_POINT_H
