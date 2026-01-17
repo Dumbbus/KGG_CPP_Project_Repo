@@ -4,6 +4,8 @@
 
 #ifndef KGG_CPP_PROJECT_REPO_RASTERIZER_H
 #define KGG_CPP_PROJECT_REPO_RASTERIZER_H
+#include <Light/Light_Point.hpp>
+
 #include "Mesh.hpp"
 #include "Render.h"
 #include "Math/Vector2.hpp"
@@ -19,7 +21,7 @@ namespace render {
             std::vector<gmath::Vector3d>& face_normals,
             const Texture* texture,
             const bool use_face_normals,
-            const gmath::Vector3f& light_direction,
+            const std::vector<Light>& light_direction,
             const float ambient,
             const Color &color
         );
@@ -46,6 +48,9 @@ namespace render {
             const gmath::Vector3<float> a,
             const gmath::Vector3<float> b,
             const gmath::Vector3<float> c,
+            const gmath::Vector3<float> a_view,
+            const gmath::Vector3<float> b_view,
+            const gmath::Vector3<float> c_view,
             const gmath::Vector3<float> normal_a,
             const gmath::Vector3<float> normal_b,
             const gmath::Vector3<float> normal_c,
@@ -56,7 +61,7 @@ namespace render {
             const float pv1_inv_w,
             const float pv2_inv_w,
             const Texture* texture,
-            const gmath::Vector3<float> light_direction,
+            const std::vector<Light>& light_direction,
             const float ambient,
             const Color &color
         );

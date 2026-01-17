@@ -95,7 +95,7 @@ add_library(kgg_core
         src/Window/Window.cpp
 )
 
-target_include_directories(kgg_core PUBLIC include)
+target_include_directories(kgg_core PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 target_link_libraries(kgg_core
         PUBLIC

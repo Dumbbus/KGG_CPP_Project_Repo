@@ -15,6 +15,7 @@
 #include "Render/Mesh.hpp"
 #include "Render/Render.h"
 #include "Scene/Scene.h"
+#include "Light/Light_Point.hpp"
 using namespace std;
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
@@ -29,7 +30,7 @@ vector<Object*> objects_for_rotation;
 int chosen_scene = 0;
 int chosen_object = 0;
 int chosen_polygon = 0;
-bool is_flat_shading = true;
+bool is_flat_shading = false;
 bool SCENE_SELECTER = false;
 bool OBJECT_SELECTOR = false;
 bool EDITOR = false;
@@ -60,7 +61,7 @@ void loadTextures(Object& object) {
             }
         }
         else if (getOSName() == "Linux") {
-            if (!image.loadFromFile("resources/models/caracal_texture.png")) {
+            if (!image.loadFromFile("/home/akemi/CGG/GROUP_TASK/KGG_CPP_Project_Repo/resources/models/caracal_texture.png")) {
                 cout << "Failed to load img" << endl;
             }
         }
@@ -159,7 +160,9 @@ void Window::create_Window() {
     Rasterizer rasterizer;
     window.setFramerateLimit(60);
     float ambient = 0.25f;
-    gmath::Vector4d light_direction = {1.0f, 1.0f, -1.0f, 0.0f};
+    Light_Point lights_dots;
+    lights_dots.add_light({{1.0f, 1.0f, -1.0f}, Color::blue(), 0.5f});
+    //lights_dots.add_light({{0, 0, 5}, {255, 255, 255, 255}});
 
     ImGui::SFML::Init(window);
 
@@ -223,9 +226,11 @@ void Window::create_Window() {
             for (Object& object : scenes.at(chosen_scene)->objects3d) {
 
                 gmath::Matrix4d view_mat = scenes.at(chosen_scene)->camera.look_at();
-                gmath::Vector4d light_in_view = (view_mat * light_direction).normalized();
-                gmath::Vector3f light_dir_v = {(float)light_in_view.x, (float)light_in_view.y, (float)light_in_view.z};
-
+                //gmath::Vector4d light_in_view = (view_mat * light_direction).normalized();
+                //gmath::Vector3f light_dir_v = {(float)light_in_view.x, (float)light_in_view.y, (float)light_in_view.z};
+                std::vector<Light> lights = lights_dots.transfer_light_to_view(
+                    view_mat, object.transform.get_model_matrix(),
+                    WIDTH, HEIGHT);
                 //object.mesh.recompute_normals();
 
                 const auto processed_mesh = Render::process_mesh(
@@ -256,7 +261,7 @@ void Window::create_Window() {
                     face_normals,
                     object.mesh.m_texture.get(),
                     is_flat_shading,
-                    light_dir_v,
+                    lights,
                     ambient,
                     Color::yellow()
                     );

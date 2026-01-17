@@ -15,6 +15,7 @@ struct ProcessedVertex {
     gmath::Vector3<double> position;
     gmath::Vector3<double> normal;
     gmath::Vector2<double> uv;
+    gmath::Vector3<double> pos_in_view;
     double inv_w; // 1 / w
     bool valid;
 };

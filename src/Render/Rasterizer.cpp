@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <complex>
 #include <iostream>
+#include <Light/Light_Point.hpp>
 
 namespace render {
     static float edge(
@@ -125,6 +126,17 @@ namespace render {
         return uv_1 * alpha + uv_2 * beta + uv_3 * gamma;
     }
 
+    static gmath::Vector3f interpolate_position_in_view(
+        float alpha,
+        float beta,
+        float gamma,
+        const gmath::Vector3f& position_1,
+        const gmath::Vector3f& position_2,
+        const gmath::Vector3f& position_3
+        ) {
+        return position_1 * alpha + position_2 * beta + position_3 * gamma;
+    }
+
     void Rasterizer::draw_colored_triangle(
         Framebuffer& framebuffer,
         const gmath::Vector3<float> a,
@@ -191,7 +203,7 @@ namespace render {
         std::vector<gmath::Vector3d>& face_normals,
         const Texture* texture,
         const bool use_face_normals,
-        const gmath::Vector3f& light_direction,
+        const std::vector<Light>& light_direction,
         const float ambient,
         const Color &color
         ) {
@@ -228,6 +240,10 @@ namespace render {
             gmath::Vector3f pos1f(pv1.position.x, pv1.position.y, pv1.position.z);
             gmath::Vector3f pos2f(pv2.position.x, pv2.position.y, pv2.position.z);
 
+            gmath::Vector3f pos0f_view(pv0.pos_in_view.x, pv0.pos_in_view.y, pv0.pos_in_view.z);
+            gmath::Vector3f pos1f_view(pv1.pos_in_view.x, pv1.pos_in_view.y, pv1.pos_in_view.z);
+            gmath::Vector3f pos2f_view(pv2.pos_in_view.x, pv2.pos_in_view.y, pv2.pos_in_view.z);
+
             gmath::Vector2f uv0f(pv0.uv.x, pv0.uv.y);
             gmath::Vector2f uv1f(pv1.uv.x, pv1.uv.y);
             gmath::Vector2f uv2f(pv2.uv.x, pv2.uv.y);
@@ -237,6 +253,9 @@ namespace render {
                 pos0f,
                 pos1f,
                 pos2f,
+                pos0f_view,
+                pos1f_view,
+                pos2f_view,
                 normal_0,
                 normal_1,
                 normal_2,
@@ -305,6 +324,9 @@ namespace render {
         const gmath::Vector3<float> a,
         const gmath::Vector3<float> b,
         const gmath::Vector3<float> c,
+        const gmath::Vector3<float> a_view,
+        const gmath::Vector3<float> b_view,
+        const gmath::Vector3<float> c_view,
         const gmath::Vector3<float> normal_a,
         const gmath::Vector3<float> normal_b,
         const gmath::Vector3<float> normal_c,
@@ -315,7 +337,7 @@ namespace render {
         const float pv1_inv_w,
         const float pv2_inv_w,
         const Texture* texture,
-        const gmath::Vector3<float> light_direction,
+        const std::vector<Light>& light_direction,
         const float ambient,
         const Color &color
     ) {
@@ -366,15 +388,43 @@ namespace render {
 
                     gmath::Vector3f pixel_normal = interpolate_normal(alpha, beta, gamma, normal_a, normal_b, normal_c);
 
-                    float diffuse = std::max(0.0f, pixel_normal.dot(light_direction));
-                    float intensity = std::min(1.0f, ambient + diffuse);
+                    gmath::Vector3f pixel_normalized = pixel_normal.normalized();
+                    gmath::Vector3f pixel_position_interpolated = interpolate_position_in_view(
+                        alpha,
+                        beta,
+                        gamma,
+                        a_view,
+                        b_view,
+                        c_view
+                        );
+
+                    Color res_color(0, 0, 0, texture_color.a);
+
+                    res_color.r = std::min(255.0f, texture_color.r * ambient);
+                    res_color.g = std::min(255.0f, texture_color.g * ambient);
+                    res_color.b = std::min(255.0f, texture_color.b * ambient);
+
+                    for (const auto& light : light_direction) {
+                        gmath::Vector3f L = (light.position - pixel_position_interpolated).normalized();
+                        float diff = std::max(0.0f, pixel_normalized.dot(L));
+
+                        float intensity = diff * light.intensity;
+
+                        res_color.r += intensity * light.color.r;
+                        res_color.g += intensity * light.color.g;
+                        res_color.b += intensity * light.color.b;
+                    }
+
+                    res_color.r = std::min(255.0f, (float) res_color.r);
+                    res_color.g = std::min(255.0f, (float) res_color.g);
+                    res_color.b = std::min(255.0f, (float) res_color.b);
 
                     float z = (alpha * a.z + beta * b.z + gamma * c.z);
 
                     Color pixel_color(
-                        (std::uint8_t) (intensity * texture_color.r),
-                        (std::uint8_t) (intensity * texture_color.g),
-                        (std::uint8_t) (intensity * texture_color.b),
+                        (std::uint8_t) (res_color.r),
+                        (std::uint8_t) (res_color.g),
+                        (std::uint8_t) (res_color.b),
                         texture_color.a
                     );
 

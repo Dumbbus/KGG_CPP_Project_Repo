@@ -28,12 +28,18 @@ std::vector<ProcessedVertex> Render::process_mesh(
             const auto& normal = mesh.m_normals[normal_index[i]];
             const auto& uv = mesh.m_uvs[uv_index[i]];
 
+            const gmath::Vector4d view_vector = view * gmath::Vector4d(
+                vertex.x,
+                vertex.y,
+                vertex.z,
+                1.0
+                );
             const gmath::Vector4d clip = MVP * gmath::Vector4d(vertex.x, vertex.y, vertex.z, 1.0);
 
             const gmath::Vector4d n4 = (model_view * gmath::Vector4d(normal.x, normal.y, normal.z, 0.0)).normalized();
 
             if (clip.w < 0.0001) {
-                result.push_back({{}, {}, {}, 0.0, false});
+                result.push_back({{}, {}, {}, {}, 0.0, false});
                 continue;
             }
 
@@ -50,6 +56,7 @@ std::vector<ProcessedVertex> Render::process_mesh(
                 {screen_x, screen_y, ndc_z},
                 {n4.x, n4.y, n4.z},
                 uv * inv_w,
+                {view_vector.x, view_vector.y, view_vector.z},
                 inv_w,
                 true
             });
