@@ -65,10 +65,10 @@ void loadTextures(Object& object) {
                 cout << "Failed to load img" << endl;
             }
         }
-        object.mesh.m_texture->width = image.getSize().x;
-        object.mesh.m_texture->height = image.getSize().y;
-        object.mesh.m_texture->channels = 4;
-        object.mesh.m_texture->pixels.assign(image.getPixelsPtr(), image.getPixelsPtr() + object.mesh.m_texture->width * object.mesh.m_texture->height * 4);
+        // object.mesh.m_texture->width = image.getSize().x;
+        // object.mesh.m_texture->height = image.getSize().y;
+        // object.mesh.m_texture->channels = 4;
+        // object.mesh.m_texture->pixels.assign(image.getPixelsPtr(), image.getPixelsPtr() + object.mesh.m_texture->width * object.mesh.m_texture->height * 4);
 }
 void style() {
     ImVec4* colors = ImGui::GetStyle().Colors;
@@ -161,8 +161,12 @@ void Window::create_Window() {
     window.setFramerateLimit(60);
     float ambient = 0.25f;
     Light_Point lights_dots;
-    lights_dots.add_light({{1.0f, 1.0f, -1.0f}, Color::blue(), 0.5f});
-    //lights_dots.add_light({{0, 0, 5}, {255, 255, 255, 255}});
+    // Основной "солнечный" свет сверху
+    lights_dots.add_light({{0.f, 50.f, 0.f}, Color::red(), 0.5f});
+    lights_dots.add_light({{0.f, 50.f, 0.f}, Color::yellow(), 0.5f});
+    lights_dots.add_light({{0.f, -500.f, 0.f}, Color::blue(), 0.5f});
+    lights_dots.add_light({{0.f, -500.f, 0.f}, Color::green(), 0.5f});
+
 
     ImGui::SFML::Init(window);
 
@@ -263,7 +267,7 @@ void Window::create_Window() {
                     is_flat_shading,
                     lights,
                     ambient,
-                    Color::yellow()
+                    Color::white()
                     );
 
                 // rasterizer.draw_wireframe(

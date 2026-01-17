@@ -386,9 +386,9 @@ namespace render {
 
                     Color texture_color = (texture && !texture->empty()) ? texture->sample(uv.x, uv.y) : color;
 
-                    gmath::Vector3f pixel_normal = interpolate_normal(alpha, beta, gamma, normal_a, normal_b, normal_c);
+                    gmath::Vector3f poly_normal = interpolate_normal(alpha, beta, gamma, normal_a, normal_b, normal_c);
 
-                    gmath::Vector3f pixel_normalized = pixel_normal.normalized();
+                    gmath::Vector3f pixel_normalized = poly_normal.normalized();
                     gmath::Vector3f pixel_position_interpolated = interpolate_position_in_view(
                         alpha,
                         beta,
@@ -398,35 +398,50 @@ namespace render {
                         c_view
                         );
 
-                    Color res_color(0, 0, 0, texture_color.a);
+                    Color pixel_color;
 
-                    res_color.r = std::min(255.0f, texture_color.r * ambient);
-                    res_color.g = std::min(255.0f, texture_color.g * ambient);
-                    res_color.b = std::min(255.0f, texture_color.b * ambient);
+                    float amb_r = texture_color.r * ambient;
+                    float amb_g = texture_color.g * ambient;
+                    float amb_b = texture_color.b * ambient;
+
+                    float total_diffuse_r = 0.0f;
+                    float total_diffuse_g = 0.0f;
+                    float total_diffuse_b = 0.0f;
+
+                    float total_specular_r = 0.0f;
+                    float total_specular_g = 0.0f;
+                    float total_specular_b = 0.0f;
 
                     for (const auto& light : light_direction) {
                         gmath::Vector3f L = (light.position - pixel_position_interpolated).normalized();
+                        gmath::Vector3f V = (-pixel_normalized).normalized();
+                        gmath::Vector3f R = (L - pixel_normalized * 2.0f * pixel_normalized.dot(L)).normalized();
+
                         float diff = std::max(0.0f, pixel_normalized.dot(L));
 
                         float intensity = diff * light.intensity;
 
-                        res_color.r += intensity * light.color.r;
-                        res_color.g += intensity * light.color.g;
-                        res_color.b += intensity * light.color.b;
+                        total_diffuse_r += (light.color.r / 255.0f) * intensity;
+                        total_diffuse_g += (light.color.g / 255.0f) * intensity;
+                        total_diffuse_b += (light.color.b / 255.0f) * intensity;
+
+                        float spec = std::pow(std::max(0.0f, V.dot(R)), 32);
+
+                        total_specular_r += (light.color.r) * spec;
+                        total_specular_g += (light.color.g) * spec;
+                        total_specular_b += (light.color.b) * spec;
                     }
 
-                    res_color.r = std::min(255.0f, (float) res_color.r);
-                    res_color.g = std::min(255.0f, (float) res_color.g);
-                    res_color.b = std::min(255.0f, (float) res_color.b);
+                    float final_r = amb_r + (texture_color.r * total_diffuse_r) + total_specular_r;
+                    float final_g = amb_g + (texture_color.g * total_diffuse_g) + total_specular_g;
+                    float final_b = amb_b + (texture_color.b * total_diffuse_b) + total_specular_b;
+
+                    pixel_color.r = static_cast<uint8_t>(std::min(255.0f, final_r));
+                    pixel_color.g = static_cast<uint8_t>(std::min(255.0f, final_g));
+                    pixel_color.b = static_cast<uint8_t>(std::min(255.0f, final_b));
+                    pixel_color.a = texture_color.a;
 
                     float z = (alpha * a.z + beta * b.z + gamma * c.z);
-
-                    Color pixel_color(
-                        (std::uint8_t) (res_color.r),
-                        (std::uint8_t) (res_color.g),
-                        (std::uint8_t) (res_color.b),
-                        texture_color.a
-                    );
 
                     fb.set_pixel(x, y, pixel_color, z);
                 }

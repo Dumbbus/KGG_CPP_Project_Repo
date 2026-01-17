@@ -41,7 +41,7 @@ public:
             gmath::Vector4d light_in_view = view * light_pos;
             gmath::Vector3f light_float = {(float)light_in_view.x, (float)light_in_view.y, (float)light_in_view.z};
 
-            lights_new.push_back({light_float, light.color});
+            lights_new.push_back({light_float, light.color, light.intensity});
         }
         return lights_new;
     }

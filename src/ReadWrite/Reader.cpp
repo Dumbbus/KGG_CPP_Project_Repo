@@ -25,7 +25,7 @@ std::vector<std::string> splitWithEmpty(const std::string& s, char delimiter) {
     return tokens;
 }
 
-Object Reader::Read(const std::string filename) {
+Object Reader::Read(const std::string& filename) {
     bool are_normals_present = true;
     bool is_default_uv_needed = true;
     char delim = '/';
@@ -98,7 +98,7 @@ Object Reader::Read(const std::string filename) {
             if (face.size() == 3) {
                 Polygon polygon;
                 polygon.set_vertexs(face);
-                polygon.set_normals(normal);
+                polygon.set_normals(std::vector<int>(normal.empty() ? (0, 0, 0) : (normal[0], normal[1], normal[2])));
                 polygon.set_uvs(textIndicies);
                 object3d.mesh.m_polygons.emplace_back(polygon);
             }
@@ -106,7 +106,7 @@ Object Reader::Read(const std::string filename) {
                 for (size_t i = 1; i < face.size() - 1; i++) {
                     Polygon polygon;
                     polygon.set_vertexs({face[0],face[i],face[i + 1]});
-                    polygon.set_normals({normal[0],normal[i],normal[i + 1]});
+                    polygon.set_normals(std::vector<int>(normal.empty() ? (0, 0, 0) : (normal[0],normal[i],normal[i + 1])));
                     polygon.set_uvs({textIndicies[0],textIndicies[i],textIndicies[i + 1]});
                     object3d.mesh.m_polygons.emplace_back(polygon);
                 }
